@@ -1,0 +1,62 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <RootNamespace>Who_s_the_funniest</RootNamespace>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="add.png" />
+    <None Remove="fonts\PlusJakartaSans-Medium.ttf" />
+    <None Remove="fonts\PlusJakartaSans-Regular.ttf" />
+    <None Remove="fonts\PlusJakartaSans-VariableFont_wght.ttf" />
+    <None Remove="uc\crown.png" />
+    <None Remove="—Pngtree—false free png_4863857.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\.editorconfig" Link=".editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="zck_client">
+      <HintPath>..\..\zoneck server\zck_client\bin\Debug\zck_client.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="add.png" />
+    <Resource Include="fonts\PlusJakartaSans-Medium.ttf" />
+    <Resource Include="fonts\PlusJakartaSans-Regular.ttf" />
+    <Resource Include="fonts\PlusJakartaSans-VariableFont_wght.ttf" />
+    <Resource Include="assets\close.png" />
+    <Resource Include="uc\crown.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Update="uc\UC_party.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+</Project>
