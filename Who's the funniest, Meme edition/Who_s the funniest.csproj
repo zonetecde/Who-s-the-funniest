@@ -12,6 +12,8 @@
     <None Remove="add.png" />
     <None Remove="assets\sound_off.png" />
     <None Remove="assets\sound_on.png" />
+    <None Remove="assets\stopwatch.png" />
+    <None Remove="fonts\impact.ttf" />
     <None Remove="fonts\PlusJakartaSans-Medium.ttf" />
     <None Remove="fonts\PlusJakartaSans-Regular.ttf" />
     <None Remove="fonts\PlusJakartaSans-VariableFont_wght.ttf" />
@@ -26,6 +28,7 @@
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+    <PackageReference Include="PixiEditor.ColorPicker" Version="3.3.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -38,6 +41,8 @@
     <Resource Include="add.png" />
     <EmbeddedResource Include="assets\sound_off.png" />
     <EmbeddedResource Include="assets\sound_on.png" />
+    <Resource Include="assets\stopwatch.png" />
+    <Resource Include="fonts\impact.ttf" />
     <Resource Include="fonts\PlusJakartaSans-Medium.ttf" />
     <Resource Include="fonts\PlusJakartaSans-Regular.ttf" />
     <Resource Include="fonts\PlusJakartaSans-VariableFont_wght.ttf" />

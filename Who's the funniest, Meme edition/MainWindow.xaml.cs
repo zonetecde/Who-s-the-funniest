@@ -12,8 +12,10 @@ using System.Security.Policy;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -23,6 +25,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Who_s_the_funniest.classe;
 using Who_s_the_funniest.classe.msg;
+using Who_s_the_funniest.extension;
 using Who_s_the_funniest.uc;
 using Who_s_the_funniest__Meme_edition.uc;
 using zck_client;
@@ -44,10 +47,17 @@ namespace Who_s_the_funniest__Meme_edition
         // Créé une partie
         int NbreJoueur = 8;
         Random Rdn = new Random();
-        const int MIN_PLAYER_TO_START = 2;
+        const int MIN_PLAYER_TO_START = 1;
 
         // Trouver une partie
         Party Party;
+
+        // Game
+        Timer GameTimer;
+        List<Mème> OtherPeopleMème = new List<Mème>();
+
+        // Créer mème
+        BrushConverter Converter = new System.Windows.Media.BrushConverter();
 
         public MainWindow()
         {
@@ -61,10 +71,11 @@ namespace Who_s_the_funniest__Meme_edition
             Grid_GameJoined.Visibility = Visibility.Hidden;
             Grid_GameSearcher.Visibility = Visibility.Visible;
             Grid_Game.Visibility = Visibility.Hidden;
+            Grid_Vote.Visibility = Visibility.Hidden;
 
             TextBox_Username.Text = Who_s_the_funniest.Properties.Settings.Default.Username;
 
-            GameStart();
+            //GameStart();
         }
 
         /// <summary>
@@ -269,7 +280,7 @@ namespace Who_s_the_funniest__Meme_edition
             if (Party.Players.Count == Party.NbreJoueurMax)
             {
                 // Game start
-                StartGame(Party.Id.ToString());
+                StartGameVisual(Party.Id.ToString());
             }
         }
 
@@ -368,7 +379,7 @@ namespace Who_s_the_funniest__Meme_edition
                                     if(((UC_party)uc_Party).Party.Players.Count == ((UC_party)uc_Party).Party.NbreJoueurMax)
                                     {
                                         // Game start
-                                        StartGame(((UC_party)uc_Party).Party.Id.ToString());
+                                        StartGameVisual(((UC_party)uc_Party).Party.Id.ToString());
                                     }
                                 }
                             }
@@ -438,8 +449,31 @@ namespace Who_s_the_funniest__Meme_edition
                     // l'enlève de la liste des games
                     Dispatcher.Invoke(() =>
                     {
-                        StartGame(wtfM.Content);
+                        StartGameVisual(wtfM.Content);
                     });
+                }
+                else if(wtfM.MsgType == MessageType.MY_MEME)
+                {
+                    // Quelqu'un a envoyé son mème
+                    OtherPeopleMème.Add(JsonConvert.DeserializeObject<Mème>(wtfM.Content));
+
+                    // Si on a reçu tous les mèmes ont peut commencer le vote
+                    if(OtherPeopleMème.Count == Party.Players.Count)
+                    {
+                        Dispatcher.Invoke(() =>
+                        {
+                            StartVoting();
+                        });
+                    }
+                    else
+                    {
+                        // On incrémente le nombre de personne qui ont donné leur mème
+                        Dispatcher.Invoke(() =>
+                        {
+                            Label_WaitMemeOfOtherCounter.Visibility = Visibility.Visible;
+                            Run_MemeCounter.Text = OtherPeopleMème.Count + "/" + Party.Players.Count;
+                        });
+                    }
                 }
                 
                 #endregion
@@ -459,7 +493,7 @@ namespace Who_s_the_funniest__Meme_edition
         /// Start la game qui a pour id gameId. Si on est dans la game, on commence à jouer.
         /// </summary>
         /// <param name="gameId"></param>
-        private void StartGame(string gameId)
+        private void StartGameVisual(string gameId)
         {
             for (int i = 0; i < StackPanel_party.Children.Count; i++)
             {
@@ -490,10 +524,39 @@ namespace Who_s_the_funniest__Meme_edition
             Grid_GameJoined.Visibility = Visibility.Hidden;
             Grid_GameSearcher.Visibility = Visibility.Hidden;
             Grid_Game.Visibility = Visibility.Visible;
+            Grid_Vote.Visibility = Visibility.Hidden;
+            Grid_Vote.Visibility = Visibility.Hidden;
 
             Button_ChangeMeme.Content = "Changer de mème (3)";
             Button_ChangeMeme.Tag = 3;
             Button_ChangeMeme.IsEnabled = true;
+
+            OtherPeopleMème = new List<Mème>();
+
+            label_timer.Content = "90";
+            int compteur = 90;
+            GameTimer = new Timer(1000);
+            GameTimer.Elapsed += (sender, e) =>
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    compteur--;
+                    label_timer.Content = compteur;
+
+                    // round finit
+                    if (compteur <= 0)
+                    {
+                        // Si pas encore validé son mème:
+                        if(Grid_MemeMaker.Visibility == Visibility.Visible)
+                        {
+                            Button_ValideMeme_Click(this, null);
+                        }
+
+                        GameTimer.Stop();
+                    }
+                });
+            };
+            GameTimer.Start();
 
             ShowRandomMeme();
         }
@@ -507,6 +570,10 @@ namespace Who_s_the_funniest__Meme_edition
             Grid_MemeMaker.Visibility = Visibility.Visible;
             Canvas_meme.Children.RemoveRange(2, Canvas_meme.Children.Count - 2); // 1 = l'image son donc on l'enlève jamais, 2 = label "chargement" on l'enleve jamais
             Image_Sound.Visibility = Visibility.Hidden;
+
+            textBlock_textIndication.Text = "Pour ajouter du texte au mème, tracer une zone de texte en maintenant le clique gauche de la souris. Fait clique-droit pour annuler votre tracer, ou relâcher le clique gauche pour commencer à écrire dans votre zone de texte.";
+            textBlock_textIndication.Visibility = Visibility.Visible;
+            Grid_CustomTexte.Visibility = Visibility.Collapsed;
 
             // Prend une image/vidéo aléatoire
             bool isVideo = Rdn.Next(0, 100) > 50;
@@ -537,7 +604,9 @@ namespace Who_s_the_funniest__Meme_edition
 
                     if (!linkIsDead)
                     {
-                        Label_titreMeme.Content = randomLine.Split('|')[0];
+                        Canvas_meme.Tag = randomLine; // En tag le meme
+
+                        Label_titreMeme.Content = randomLine.Split('|')[0].Replace(" ", "  ");
 
                         Image img = new Image();
                         var bitmapImage = new BitmapImage();
@@ -578,8 +647,11 @@ namespace Who_s_the_funniest__Meme_edition
 
                     if (!linkIsDead)
                     {
+                        Canvas_meme.Tag = randomLine; // En tag le meme
+
                         Image_Sound.Visibility = Visibility.Visible;
-                        Label_titreMeme.Content = randomLine.Split('|')[0];
+                        Label_titreMeme.Content = randomLine.Split('|')[0].Replace(" ", "  ");
+
                         MediaElement video = new MediaElement();
                         video.LoadedBehavior = MediaState.Manual;
                         bool firstLoop = true;
@@ -595,6 +667,7 @@ namespace Who_s_the_funniest__Meme_edition
                             {
                                 video.Volume = 0;
                                 Image_Sound.Source = FindResource("assets.sound_off.png");
+                                Image_Sound.Tag = "Off";
                                 firstLoop = false;
                             }
                         };
@@ -609,6 +682,7 @@ namespace Who_s_the_funniest__Meme_edition
                         Canvas.SetZIndex(Image_Sound, 500);
 
                         Image_Sound.Source = FindResource("assets.sound_on.png");
+                        Image_Sound.Tag = "On";
                     }
                 } while (linkIsDead);
 
@@ -674,5 +748,407 @@ namespace Who_s_the_funniest__Meme_edition
             ShowRandomMeme();
             Button_ChangeMeme.Tag = (int)Button_ChangeMeme.Tag - 1;
         }
+
+        bool isDrawingBorder = false;
+        Border? drawingBorder;
+        Point startingPoint;
+
+        /// <summary>
+        /// Customise le mème
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Canvas_meme_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.Source != Image_Sound && e.LeftButton == MouseButtonState.Pressed)
+            {
+                // Commence la traçage de bordure
+                isDrawingBorder = true;
+
+                drawingBorder = new Border()
+                {
+                    Width = 0,
+                    Height = 0,
+                    BorderBrush = Brushes.Black,
+                    BorderThickness = new Thickness(2)
+                };
+
+                var pos = Mouse.GetPosition(Canvas_meme);
+                startingPoint = pos;
+                Canvas_meme.Children.Add(drawingBorder);
+                Canvas.SetLeft(drawingBorder, pos.X);
+                Canvas.SetTop(drawingBorder, pos.Y);
+            }
+        }
+
+        /// <summary>
+        /// Dessine
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Canvas_meme_MouseMove(object sender, MouseEventArgs e)
+        {
+            if(isDrawingBorder && e.LeftButton == MouseButtonState.Pressed)
+            {
+                var pos = Mouse.GetPosition(Canvas_meme);
+
+                double x = Math.Min(pos.X, startingPoint.X);
+                double y = Math.Min(pos.Y, startingPoint.Y);
+                double width = Math.Abs(pos.X - startingPoint.X);
+                double height = Math.Abs(pos.Y - startingPoint.Y);
+
+                Canvas.SetLeft(drawingBorder, x);
+                Canvas.SetTop(drawingBorder, y);
+                drawingBorder.Width = width;
+                drawingBorder.Height = height;               
+            }
+        }
+
+        /// <summary>
+        /// Annule le drawing en cours
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Canvas_meme_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            // Annule le rec
+            if (isDrawingBorder)
+            {
+                isDrawingBorder = false;
+                Canvas_meme.Children.Remove(drawingBorder);
+            }
+        }
+
+        /// <summary>
+        /// Trace la textBox dessiné
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Canvas_meme_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (isDrawingBorder)
+            {
+                if (drawingBorder.Width > 15 && drawingBorder.Height > 15)
+                {
+
+                    isDrawingBorder = false;
+
+                    // trace la textbox
+
+                    // Ajoute une zone de texte 
+                    #region Ajout de la zone de texte
+
+                    Viewbox vb = new Viewbox()
+                    {
+                        Width = drawingBorder.Width,
+                        Height = drawingBorder.Height,
+                    };
+
+                    TextBox zone_de_texte = new TextBox()
+                    {
+                        VerticalContentAlignment = VerticalAlignment.Center,
+                        HorizontalContentAlignment = HorizontalAlignment.Center,
+
+                        Background = Label_impact_font.Background,
+                        BorderBrush = Brushes.Transparent,
+                        Foreground = Brushes.White,
+                        TextWrapping = TextWrapping.Wrap,
+                        AcceptsReturn = true,
+                        FontFamily = Label_impact_font.FontFamily,
+                        FontSize = 40,
+                        SelectionBrush = Brushes.Transparent,
+                    };
+
+                    vb.Child = zone_de_texte;
+
+                    #endregion
+
+                    // Créé un contexte menue pour pouvoir supprimer la textBox
+                    #region Context Menu
+                    ContextMenu cm = new ContextMenu();
+                    MenuItem mI = new MenuItem()
+                    {
+                        Header = "Supprimer"
+                    };
+                    mI.Click += (sender, e) =>
+                    {
+                        Canvas_meme.Children.Remove(vb);
+                        Grid_CustomTexte.Visibility = Visibility.Collapsed;
+                        Grid_CustomTexte.Tag = null;
+                        textBlock_textIndication.Text = "Cliquer sur une zone de texte pour la customiser.";
+                        textBlock_textIndication.Visibility = Visibility.Visible;
+                    };
+
+                    cm.Items.Add(mI);
+
+                    zone_de_texte.ContextMenu = cm;
+                    #endregion
+
+                    Canvas_meme.Children.Add(vb);
+                    Canvas.SetLeft(vb, Canvas.GetLeft(drawingBorder));
+                    Canvas.SetTop(vb, Canvas.GetTop(drawingBorder));
+
+                    zone_de_texte.Focus();
+                    Grid_CustomTexte.Visibility = Visibility.Visible;
+                    Grid_CustomTexte.Tag = vb;
+                    textBlock_textIndication.Visibility = Visibility.Collapsed;
+
+                    // Enlève le dessin de la bordure
+                    Canvas_meme.Children.Remove(drawingBorder);
+
+                    // Lorsque la textBox à le focus, il y a des options qui s'affiche à droite
+                    zone_de_texte.GotFocus += (sender, e) =>
+                    {
+                        Grid_CustomTexte.Visibility = Visibility.Visible;
+                        Grid_CustomTexte.Tag = vb;
+                        textBlock_textIndication.Visibility = Visibility.Collapsed;
+                    };
+                    zone_de_texte.TextChanged += (sender, e) =>
+                    {
+                        textBox_texte.Text = zone_de_texte.Text;
+                    };
+                }
+                else
+                {
+                    isDrawingBorder = false;
+                    Canvas_meme.Children.Remove(drawingBorder);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Change la couleur du texte
+        /// </summary>
+        private void SquarePicker_couleurTexte_ColorChanged(object sender, RoutedEventArgs e)
+        {
+            if(Grid_CustomTexte.Tag != null)
+            ((TextBox)((Viewbox)Grid_CustomTexte.Tag).Child).Foreground = new SolidColorBrush(SquarePicker_couleurTexte.SelectedColor);
+        }
+
+        /// <summary>
+        /// Change la couleur de fond
+        /// </summary>
+        private void squarePicker_couleurFond_ColorChanged(object sender, RoutedEventArgs e)
+        {
+            if (Grid_CustomTexte.Tag != null)
+            {
+                var c = squarePicker_couleurFond.SelectedColor;
+                var c_temp = AlphaSlider_background.SelectedColor;
+                c.A = c_temp.A;
+                ((TextBox)((Viewbox)Grid_CustomTexte.Tag).Child).Background = new SolidColorBrush(c);
+            }
+        }
+
+        /// <summary>
+        /// Supprime la zone de texte sélectionner du mème
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Button_DeleteZoneDeTexte_Click(object sender, RoutedEventArgs e)
+        {
+            if (Grid_CustomTexte.Tag != null)
+            {
+                Canvas_meme.Children.Remove(((Viewbox)Grid_CustomTexte.Tag));
+                Grid_CustomTexte.Visibility = Visibility.Collapsed;
+                Grid_CustomTexte.Tag = null;
+                textBlock_textIndication.Text = "Cliquer sur une zone de texte pour la customiser.";
+                textBlock_textIndication.Visibility = Visibility.Visible;
+            }
+        }
+
+        /// <summary>
+        /// Change le texte
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void textBox_texte_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (Grid_CustomTexte.Tag != null)
+            {
+                ((TextBox)((Viewbox)Grid_CustomTexte.Tag).Child).Text = textBox_texte.Text;
+            }
+        }
+
+        /// <summary>
+        /// Change l'opacité du background
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void AlphaSlider_ColorChanged(object sender, RoutedEventArgs e)
+        {
+            if (Grid_CustomTexte.Tag != null)
+            {
+                var c = squarePicker_couleurFond.SelectedColor;
+                var c_temp = AlphaSlider_background.SelectedColor;
+                c.A = c_temp.A;
+                ((TextBox)((Viewbox)Grid_CustomTexte.Tag).Child).Background = new SolidColorBrush(c);
+            }
+        }
+
+        /// <summary>
+        /// Valide le mème, l'envois aux autres
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Button_ValideMeme_Click(object sender, RoutedEventArgs e)
+        {
+            // Convertis le mème en texte pour que les autres puisses le lire
+            string nom_et_url = Canvas_meme.Tag.ToString(); // nom et url du meme séparé par un |
+            List<ZoneTexte> ZoneDeTexte = new List<ZoneTexte>();
+            foreach(UIElement ui in Canvas_meme.Children)
+            {
+                if(ui is Viewbox)
+                {
+                    var vb = (Viewbox)ui;
+                    var txt = (TextBox)vb.Child;
+                    // ajoute le texte dans le format
+                    // pos L, pos T, w, h, texte, foreground, background
+                    ZoneDeTexte.Add(new ZoneTexte(Canvas.GetLeft(vb), Canvas.GetTop(vb), vb.ActualWidth, vb.ActualHeight, txt.Text, txt.Foreground, txt.Background));
+                }
+            }
+
+            // Il faut au minimum une zone de texte
+            if (ZoneDeTexte.Any() || sender == null) // ||sender == null : le mème a été forcé à être envoyé (countdown à 0)
+            {
+
+                Mème m = new Mème(nom_et_url.Split('|')[0], nom_et_url.Split('|')[1], ZoneDeTexte, ZoneckClient.MyId, Username);
+                OtherPeopleMème.Add(m);
+
+                // Envois le mème au joueur de notre game
+                foreach (Player player in Party.Players)
+                {
+                    if (player.Id != ZoneckClient.MyId)
+                    {
+                        ZoneckClient.Send(JsonConvert.SerializeObject(new WhosTheFunniestMessage(MessageType.MY_MEME, JsonConvert.SerializeObject(m))), player.Id);
+                    }
+                }
+
+
+                // Si on a reçu tous les mèmes ont peut commencer le vote
+                if (OtherPeopleMème.Count == Party.Players.Count)
+                {
+                    StartVoting();
+                }
+                else
+                {
+                    // On attend que tout le monde envois leur mème
+                    Grid_Vote.Visibility = Visibility.Visible;
+                    ShowMeme(Border_MyMeme, m);
+                    StackPanel_note.Visibility = Visibility.Hidden;
+                    Label_WaitMemeOfOtherCounter.Visibility = Visibility.Visible;
+                    Run_MemeCounter.Text = OtherPeopleMème.Count + "/" + Party.Players.Count;
+                }
+            }
+            else
+            {
+                textBlock_textIndication.Text = "Il faut au minimum ajouter une zone de texte pour pouvoir envoyer votre mème!";
+            }
+        }
+
+        /// <summary>
+        /// Affiche le mème
+        /// </summary>
+        /// <param name="border_MyMeme"></param>
+        /// <param name="m"></param>
+        private void ShowMeme(Border border, Mème m)
+        {
+            Canvas canvas = new Canvas()
+            {
+                Background = Brushes.White,
+                Width = Canvas_meme.Width,
+                Height = Canvas_meme.Height,
+                Margin = new Thickness(20),
+            };
+
+            // Image/Vidéo du mème
+            if(m.Url.Contains(".mp4"))
+            {
+                MediaElement video = new MediaElement();
+                video.LoadedBehavior = MediaState.Manual;
+
+                video.Volume = 0.3;
+                int loopNumber = 0;
+                video.MediaEnded += (sender, e) =>
+                {
+                    // boucle infini
+                    video.Position = new TimeSpan(0, 0, 0, 0, 1);
+                    video.Play();
+                    loopNumber++;
+
+                    // plus de son après 3 répétitions
+                    if(loopNumber >= 3)
+                    {
+                        video.Volume = 0;
+                    }
+                };
+
+                video.Source = new Uri(m.Url, UriKind.RelativeOrAbsolute);
+                video.Width = canvas.Width;
+                video.Height = canvas.Height;
+                canvas.Children.Add(video);
+                video.Play();
+            }
+            else
+            {
+                Image img = new Image();
+                var bitmapImage = new BitmapImage();
+                bitmapImage.BeginInit();
+                bitmapImage.UriSource = new Uri(m.Url);
+                bitmapImage.EndInit();
+
+                img.Source = bitmapImage;
+                img.Width = canvas.Width;
+                img.Height = canvas.Height;
+                canvas.Children.Add(img);
+            }
+
+            foreach(ZoneTexte zt in m.Textes)
+            {
+                Viewbox vb = new Viewbox()
+                {
+                    Width = zt.Width,
+                    Height = zt.Height,
+                };
+
+                TextBox zone_de_texte = new TextBox()
+                {
+                    VerticalContentAlignment = VerticalAlignment.Center,
+                    HorizontalContentAlignment = HorizontalAlignment.Center,
+
+                    Background = zt.Background,
+                    BorderBrush = Brushes.Transparent,
+                    Foreground = zt.Foreground,
+                    TextWrapping = TextWrapping.Wrap,
+                    AcceptsReturn = true,
+                    FontFamily = Label_impact_font.FontFamily,
+                    FontSize = 40,
+                    SelectionBrush = Brushes.Transparent,
+                    Text = zt.Texte
+                };
+
+                vb.Child = zone_de_texte;
+
+                canvas.Children.Add(vb);
+                Canvas.SetLeft(vb, zt.CanvasLeft);
+                Canvas.SetTop(vb, zt.CanvasTop);
+            }
+
+            Border_MyMeme.Child = canvas;
+
+            Label_MemeVoteName.Content = m.Nom;
+        }
+
+        /// <summary>
+        /// Commence à voter le mème de tous les joueurs
+        /// </summary>
+        private void StartVoting()
+        {
+            Grid_MemeMaker.Visibility = Visibility.Hidden;
+            Grid_Vote.Visibility = Visibility.Visible;
+            StackPanel_note.Visibility = Visibility.Visible;
+            Label_WaitMemeOfOtherCounter.Visibility = Visibility.Hidden;
+
+        }
     }
+
 }
