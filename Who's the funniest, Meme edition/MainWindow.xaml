@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="Who's the funniest ? Meme edition" FontFamily="{StaticResource jakarta_regular}" MinHeight="768" MinWidth="1024" ContentRendered="Window_ContentRendered" WindowStartupLocation="CenterScreen" WindowState="Maximized">
     <Grid>
-        <Grid x:Name="Grid_GameSearcher">
+        <Grid x:Name="Grid_GameSearcher" Visibility="Hidden">
 
             <Grid Background="#FF85586F">
                 <Grid.ColumnDefinitions>
@@ -29,7 +29,7 @@
                         </ScrollViewer>
                         <Image Source="/add.png" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="80" Height="80" Margin="0,0,20,20" MouseDown="Image_CreateGame_MouseDown"/>
 
-                        <Border Visibility="Hidden" x:Name="Grid_CreateNewGame" CornerRadius="35,35,35,35" Background="#7F000000" BorderBrush="#FFD0B8A8" BorderThickness="2,2,2,2">
+                        <Border Visibility="Visible" x:Name="Grid_CreateNewGame" CornerRadius="35,35,35,35" Background="#7F000000" BorderBrush="#FFD0B8A8" BorderThickness="2,2,2,2">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="1*"/>
@@ -52,7 +52,7 @@
                                             <RowDefinition Height="1*"/>
                                         </Grid.RowDefinitions>
 
-                                        <Label VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,20,0,0" Content="Créé une partie" FontSize="30"/>
+                                        <Label VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,20,0,0" Content="Créer une partie" FontSize="30"/>
                                         <Label Content="Nom : " Grid.Row="1" FontSize="20" VerticalAlignment="Bottom" Margin="15,0,0,55"/>
                                         <Label Content="Langue : " Grid.Row="1" FontSize="20" VerticalAlignment="Bottom" Margin="15,0,20.1,55" HorizontalAlignment="Right"/>
                                         <TextBox x:Name="TextBox_GameName" Grid.Row="1" Background="#7FFFFFFF" VerticalAlignment="Bottom" Margin="30,0,110,10" Height="40" BorderBrush="Black" SelectionBrush="#FF323721" VerticalContentAlignment="Center" Padding="5,0,0,0" FontSize="20"/>
@@ -79,7 +79,7 @@
                             </Grid>
                         </Border>
 
-                        <Border Visibility="Visible" x:Name="Grid_GameJoined" CornerRadius="35,35,35,35" Background="#7F000000" BorderBrush="#FFD0B8A8" BorderThickness="2,2,2,2">
+                        <Border Visibility="Hidden" x:Name="Grid_GameJoined" CornerRadius="35,35,35,35" Background="#7F000000" BorderBrush="#FFD0B8A8" BorderThickness="2,2,2,2">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="1*"/>
@@ -121,9 +121,47 @@
                Visibility="Hidden"/>
 
         </Grid>
-        
+
         <Grid x:Name="Grid_Game">
-            
+            <Grid x:Name="Grid_MemeMaker" Background="#FF2B3A55">
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="16*"/>
+                    <ColumnDefinition Width="321*"/>
+                    <ColumnDefinition Width="15*"/>
+                    <ColumnDefinition Width="144*"/>
+                    <ColumnDefinition Width="16*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="12*"/>
+                    <RowDefinition Height="1*"/>
+                </Grid.RowDefinitions>
+
+                <Viewbox Grid.Row="0" Grid.Column="1">
+                    <Label x:Name="Label_titreMeme" Content="Titre du meme" Foreground="White" VerticalAlignment="Bottom" Padding="5,10,5,0" Margin="0,0,0,2.5"/>
+                </Viewbox>
+                <Viewbox Grid.Column="1" Grid.Row="1">
+                    <Border  Background="White" CornerRadius="50,50,50,50" BorderBrush="#FF1C2638" BorderThickness="3,3,3,3" >
+                        <Canvas Width="590" Height="600" x:Name="Canvas_meme" Margin="20,20,20,20">
+                            <Image x:Name="Image_Sound" Grid.Row="1" Canvas.Bottom="0" Canvas.Right="0" Grid.Column="1" Source="assets/sound_on.png" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="35" Height="35"  MouseDown="Image_Sound_MouseDown" Tag="On"/>
+                            <Label Canvas.Left="203" Canvas.Top="300" Content="Chargement..." FontSize="25" FontWeight="Bold"/>
+                        </Canvas>
+                    </Border>
+                </Viewbox>
+
+                <Border  Grid.Row="1" Grid.Column="3">
+                    <StackPanel>
+                        <Viewbox Margin="0,0,0,20">
+                            <Label Content="Customisation" Foreground="White" FontSize="30"/>
+                        </Viewbox>
+                        <Button x:Name="Button_ChangeMeme" HorizontalAlignment="Center" VerticalAlignment="Center" Width="250" Height="50" FontSize="20" Content="Changer de mème (3)" Background="#FFFFFCDF" BorderBrush="Black" Click="Button_ChangeMeme_Click"/>
+
+                    </StackPanel>
+                </Border>
+               
+
+            </Grid>
         </Grid>
     </Grid>
 </Window>

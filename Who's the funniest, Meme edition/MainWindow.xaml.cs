@@ -2,9 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Net;
 using System.Numerics;
+using System.Reflection;
 using System.Reflection.Emit;
+using System.Security.Policy;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -59,6 +63,8 @@ namespace Who_s_the_funniest__Meme_edition
             Grid_Game.Visibility = Visibility.Hidden;
 
             TextBox_Username.Text = Who_s_the_funniest.Properties.Settings.Default.Username;
+
+            GameStart();
         }
 
         /// <summary>
@@ -485,7 +491,188 @@ namespace Who_s_the_funniest__Meme_edition
             Grid_GameSearcher.Visibility = Visibility.Hidden;
             Grid_Game.Visibility = Visibility.Visible;
 
+            Button_ChangeMeme.Content = "Changer de mème (3)";
+            Button_ChangeMeme.Tag = 3;
+            Button_ChangeMeme.IsEnabled = true;
 
+            ShowRandomMeme();
+        }
+
+        /// <summary>
+        /// Affiche un meme random à custom
+        /// </summary>
+        private void ShowRandomMeme()
+        {
+            // Il commence tous à faire un meme aléatoire
+            Grid_MemeMaker.Visibility = Visibility.Visible;
+            Canvas_meme.Children.RemoveRange(2, Canvas_meme.Children.Count - 2); // 1 = l'image son donc on l'enlève jamais, 2 = label "chargement" on l'enleve jamais
+            Image_Sound.Visibility = Visibility.Hidden;
+
+            // Prend une image/vidéo aléatoire
+            bool isVideo = Rdn.Next(0, 100) > 50;
+
+            if (!isVideo)
+            {
+                bool linkIsDead = false;
+
+                do
+                {
+                    // Image random
+                    string randomLine = File.ReadAllLines(@"meme\memes.txt")[Rdn.Next(File.ReadAllLines(@"meme\memes.txt").Length)];
+                    string url = randomLine.Split('|')[1];
+
+                    // Check si l'image existe
+                    HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(url);
+                    request.Method = "HEAD";
+
+                    try
+                    {
+                        request.GetResponse();
+                        linkIsDead = false;
+                    }
+                    catch
+                    {
+                        linkIsDead = true;
+                    }
+
+                    if (!linkIsDead)
+                    {
+                        Label_titreMeme.Content = randomLine.Split('|')[0];
+
+                        Image img = new Image();
+                        var bitmapImage = new BitmapImage();
+                        bitmapImage.BeginInit();
+                        bitmapImage.UriSource = new Uri(url);
+                        bitmapImage.EndInit();
+
+                        img.Source = bitmapImage;
+                        img.Width = Canvas_meme.Width;
+                        img.Height = Canvas_meme.Height;
+                        Canvas_meme.Children.Add(img);
+                    }
+                } while (linkIsDead);
+            }
+            else
+            {
+                bool linkIsDead = false;
+
+                do
+                {
+                    // Image random
+                    string randomLine = File.ReadAllLines(@"meme\memes_gif.txt")[Rdn.Next(File.ReadAllLines(@"meme\memes_gif.txt").Length)];
+                    string url = randomLine.Split('|')[1];
+
+                    // Check si l'image existe
+                    HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(url);
+                    request.Method = "HEAD";
+
+                    try
+                    {
+                        request.GetResponse();
+                        linkIsDead = false;
+                    }
+                    catch
+                    {
+                        linkIsDead = true;
+                    }
+
+                    if (!linkIsDead)
+                    {
+                        Image_Sound.Visibility = Visibility.Visible;
+                        Label_titreMeme.Content = randomLine.Split('|')[0];
+                        MediaElement video = new MediaElement();
+                        video.LoadedBehavior = MediaState.Manual;
+                        bool firstLoop = true;
+
+                        video.MediaEnded += (sender, e) =>
+                        {
+                            // boucle infini, la deuxieme fois sans le son
+                            video.Position = new TimeSpan(0, 0, 0, 0, 1);
+                            video.Play();
+
+                            // enleve le son icone
+                            if (firstLoop)
+                            {
+                                video.Volume = 0;
+                                Image_Sound.Source = FindResource("assets.sound_off.png");
+                                firstLoop = false;
+                            }
+                        };
+
+                        video.Source = new Uri(url, UriKind.RelativeOrAbsolute); ;
+                        video.Width = Canvas_meme.Width;
+                        video.Height = Canvas_meme.Height;
+                        Canvas_meme.Children.Add(video);
+                        video.Play();
+
+                        // met Image_Sound au premier plan
+                        Canvas.SetZIndex(Image_Sound, 500);
+
+                        Image_Sound.Source = FindResource("assets.sound_on.png");
+                    }
+                } while (linkIsDead);
+
+            }
+
+        }
+
+        private BitmapImage FindResource(string resName)
+        {
+            var img = new BitmapImage();
+            img.BeginInit();
+            img.StreamSource = Assembly.GetEntryAssembly()!.GetManifestResourceStream("Who_s_the_funniest." + resName);
+            img.EndInit();
+
+            return img;
+        }
+
+        /// <summary>
+        /// Désactive/Active le son du mediaElement dans le Canvas
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Image_Sound_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+
+
+                // Switch le son en on/off
+                if (Image_Sound.Tag.ToString() == "On")
+                {
+                    Image_Sound.Tag = "Off";
+                    Image_Sound.Source = FindResource("assets.sound_off.png");
+                }
+                else
+                {
+                    Image_Sound.Tag = "On";
+                    Image_Sound.Source = FindResource("assets.sound_on.png");
+                }
+
+                foreach (UIElement ui in Canvas_meme.Children)
+                {
+                    if (ui is MediaElement)
+                    {
+                        ((MediaElement)ui).Volume = Image_Sound.Tag.ToString() == "On" ? 0.5 : 0;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Change de mème
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Button_ChangeMeme_Click(object sender, RoutedEventArgs e)
+        {
+            int essaie = (int)Button_ChangeMeme.Tag - 1;
+            if (essaie == 0)
+                Button_ChangeMeme.IsEnabled = false;
+            Button_ChangeMeme.Content = "Changer de mème (" + essaie + ")";
+            ShowRandomMeme();
+            Button_ChangeMeme.Tag = (int)Button_ChangeMeme.Tag - 1;
         }
     }
 }

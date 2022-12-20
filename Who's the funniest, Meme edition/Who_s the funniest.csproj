@@ -10,6 +10,8 @@
 
   <ItemGroup>
     <None Remove="add.png" />
+    <None Remove="assets\sound_off.png" />
+    <None Remove="assets\sound_on.png" />
     <None Remove="fonts\PlusJakartaSans-Medium.ttf" />
     <None Remove="fonts\PlusJakartaSans-Regular.ttf" />
     <None Remove="fonts\PlusJakartaSans-VariableFont_wght.ttf" />
@@ -34,6 +36,8 @@
 
   <ItemGroup>
     <Resource Include="add.png" />
+    <EmbeddedResource Include="assets\sound_off.png" />
+    <EmbeddedResource Include="assets\sound_on.png" />
     <Resource Include="fonts\PlusJakartaSans-Medium.ttf" />
     <Resource Include="fonts\PlusJakartaSans-Regular.ttf" />
     <Resource Include="fonts\PlusJakartaSans-VariableFont_wght.ttf" />
@@ -53,6 +57,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="meme\memes.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="meme\memes_gif.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
