@@ -12,7 +12,7 @@ namespace Who_s_the_funniest.classe.msg
     /// </summary>
     public class ZoneTexte
     {
-        public ZoneTexte(double canvasLeft, double canvasTop, double width, double height, string texte, Brush foreground, Brush background)
+        public ZoneTexte(double canvasLeft, double canvasTop, double width, double height, string texte, string foreground, string background)
         {
             CanvasLeft = canvasLeft;
             CanvasTop = canvasTop;
@@ -28,7 +28,7 @@ namespace Who_s_the_funniest.classe.msg
         public double Width { get; set; }
         public double Height { get; set; }
         public string Texte { get; set; }
-        public Brush Foreground { get; set; }
-        public Brush Background { get; set; }
+        public string Foreground { get; set; }
+        public string Background { get; set; }
     }
 }

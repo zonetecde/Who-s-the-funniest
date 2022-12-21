@@ -238,7 +238,7 @@
                     <Label x:Name="Label_MemeVoteName" Content="Titre du meme" Foreground="White" VerticalAlignment="Bottom" Padding="5,20,5,0" Margin="0,0,0,2.5"/>
                 </Viewbox>
                 <Viewbox Grid.Column="1" Grid.Row="1">
-                    <Border x:Name="Border_MyMeme"  Background="White" CornerRadius="50,50,50,50" BorderBrush="#FF1C2638" BorderThickness="3,3,3,3" >
+                    <Border x:Name="Border_MemeVoting"  Background="White" CornerRadius="50,50,50,50" BorderBrush="#FF1C2638" BorderThickness="3,3,3,3" >
                     </Border>
                 </Viewbox>
 

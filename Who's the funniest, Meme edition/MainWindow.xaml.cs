@@ -23,6 +23,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using Who_s_the_funniest.classe;
 using Who_s_the_funniest.classe.msg;
 using Who_s_the_funniest.extension;
@@ -355,7 +356,7 @@ namespace Who_s_the_funniest__Meme_edition
                     // Nouvelle partie créé, l'ajoute au pannel de partie
                     Party p = JsonConvert.DeserializeObject<Party>(wtfM.Content)!;
 
-                    Dispatcher.Invoke(() =>
+                    Application.Current.Dispatcher.Invoke(() =>
                     {
                         StackPanel_party.Children.Add(new uc.UC_party(p, GameJoined));
                     });
@@ -365,7 +366,7 @@ namespace Who_s_the_funniest__Meme_edition
                     Join j = JsonConvert.DeserializeObject<Join>(wtfM.Content)!;
 
                     // Quelqu'un s'est ajouté à une game
-                    Dispatcher.Invoke(() =>
+                    Application.Current.Dispatcher.Invoke(() =>
                     {
                         foreach (var uc_Party in StackPanel_party.Children)
                         {
@@ -405,7 +406,7 @@ namespace Who_s_the_funniest__Meme_edition
                     // Quelqu'un vient de se connecter et veut qu'on lui envois les games
                     List<Party> parties = new List<Party>();
 
-                    Dispatcher.Invoke(() =>
+                    Application.Current.Dispatcher.Invoke(() =>
                     {
                         foreach (var party in StackPanel_party.Children)
                         {
@@ -421,7 +422,7 @@ namespace Who_s_the_funniest__Meme_edition
                 }
                 else if (wtfM.MsgType == MessageType.HERE_IS_THE_GAMES)
                 {
-                    Dispatcher.Invoke(() =>
+                    Application.Current.Dispatcher.Invoke(() =>
                     {
                         // On a reçu les games de quelqu'un après leur avoir demandé
                         if (StackPanel_party.Children.Count == 1)
@@ -438,7 +439,7 @@ namespace Who_s_the_funniest__Meme_edition
                 else if (wtfM.MsgType == MessageType.GAME_LEFT)
                 {
                     // La personne d'id wtfM.Content a quitté la game dans laquelle elle est
-                    Dispatcher.Invoke(() =>
+                    Application.Current.Dispatcher.Invoke(() =>
                     {
                         RemoveSomeoneFromTheGameWhereHeIs(wtfM.Content);
                     });
@@ -447,7 +448,7 @@ namespace Who_s_the_funniest__Meme_edition
                 {
                     // la game qui a start son Id est dans .Content
                     // l'enlève de la liste des games
-                    Dispatcher.Invoke(() =>
+                    Application.Current.Dispatcher.Invoke(() =>
                     {
                         StartGameVisual(wtfM.Content);
                     });
@@ -460,7 +461,7 @@ namespace Who_s_the_funniest__Meme_edition
                     // Si on a reçu tous les mèmes ont peut commencer le vote
                     if(OtherPeopleMème.Count == Party.Players.Count)
                     {
-                        Dispatcher.Invoke(() =>
+                        Application.Current.Dispatcher.Invoke(() =>
                         {
                             StartVoting();
                         });
@@ -468,7 +469,7 @@ namespace Who_s_the_funniest__Meme_edition
                     else
                     {
                         // On incrémente le nombre de personne qui ont donné leur mème
-                        Dispatcher.Invoke(() =>
+                        Application.Current.Dispatcher.Invoke(() =>
                         {
                             Label_WaitMemeOfOtherCounter.Visibility = Visibility.Visible;
                             Run_MemeCounter.Text = OtherPeopleMème.Count + "/" + Party.Players.Count;
@@ -482,7 +483,7 @@ namespace Who_s_the_funniest__Meme_edition
             // Une personne s'est déconnecté, on la supp de toutes les games
             else if (obj.MessageType == ClassLibrary.MESSAGE_TYPE.DISCONNECTION)
             {
-                Dispatcher.Invoke(() =>
+                Application.Current.Dispatcher.Invoke(() =>
                 {
                     RemoveSomeoneFromTheGameWhereHeIs(obj.Id);
                 });
@@ -538,7 +539,7 @@ namespace Who_s_the_funniest__Meme_edition
             GameTimer = new Timer(1000);
             GameTimer.Elapsed += (sender, e) =>
             {
-                Dispatcher.Invoke(() =>
+                Application.Current.Dispatcher.Invoke(() =>
                 {
                     compteur--;
                     label_timer.Content = compteur;
@@ -917,6 +918,19 @@ namespace Who_s_the_funniest__Meme_edition
         }
 
         /// <summary>
+        /// On relache la souris mais en dehors du canvas
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Window_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (isDrawingBorder)
+            {
+                Canvas_meme_MouseLeftButtonUp(this, null);
+            }
+        }
+
+        /// <summary>
         /// Change la couleur du texte
         /// </summary>
         private void SquarePicker_couleurTexte_ColorChanged(object sender, RoutedEventArgs e)
@@ -1003,7 +1017,7 @@ namespace Who_s_the_funniest__Meme_edition
                     var txt = (TextBox)vb.Child;
                     // ajoute le texte dans le format
                     // pos L, pos T, w, h, texte, foreground, background
-                    ZoneDeTexte.Add(new ZoneTexte(Canvas.GetLeft(vb), Canvas.GetTop(vb), vb.ActualWidth, vb.ActualHeight, txt.Text, txt.Foreground, txt.Background));
+                    ZoneDeTexte.Add(new ZoneTexte(Canvas.GetLeft(vb), Canvas.GetTop(vb), vb.ActualWidth, vb.ActualHeight, txt.Text, txt.Foreground.ToString(), txt.Background.ToString()));
                 }
             }
 
@@ -1013,6 +1027,9 @@ namespace Who_s_the_funniest__Meme_edition
 
                 Mème m = new Mème(nom_et_url.Split('|')[0], nom_et_url.Split('|')[1], ZoneDeTexte, ZoneckClient.MyId, Username);
                 OtherPeopleMème.Add(m);
+
+                // supprime notre mème
+                Canvas_meme.Children.RemoveRange(2, Canvas_meme.Children.Count - 2); // 1 = l'image son donc on l'enlève jamais, 2 = label "chargement" on l'enleve jamais
 
                 // Envois le mème au joueur de notre game
                 foreach (Player player in Party.Players)
@@ -1027,13 +1044,15 @@ namespace Who_s_the_funniest__Meme_edition
                 // Si on a reçu tous les mèmes ont peut commencer le vote
                 if (OtherPeopleMème.Count == Party.Players.Count)
                 {
+
                     StartVoting();
+                   
                 }
                 else
                 {
                     // On attend que tout le monde envois leur mème
-                    Grid_Vote.Visibility = Visibility.Visible;
-                    ShowMeme(Border_MyMeme, m);
+                    Grid_Vote.Visibility = Visibility.Visible;                    
+                    ShowMeme(m);
                     StackPanel_note.Visibility = Visibility.Hidden;
                     Label_WaitMemeOfOtherCounter.Visibility = Visibility.Visible;
                     Run_MemeCounter.Text = OtherPeopleMème.Count + "/" + Party.Players.Count;
@@ -1050,8 +1069,10 @@ namespace Who_s_the_funniest__Meme_edition
         /// </summary>
         /// <param name="border_MyMeme"></param>
         /// <param name="m"></param>
-        private void ShowMeme(Border border, Mème m)
+        private void ShowMeme(Mème m)
         {
+            Border_MemeVoting.Child = null;
+
             Canvas canvas = new Canvas()
             {
                 Background = Brushes.White,
@@ -1060,8 +1081,10 @@ namespace Who_s_the_funniest__Meme_edition
                 Margin = new Thickness(20),
             };
 
+            Border_MemeVoting.Child = canvas;
+            
             // Image/Vidéo du mème
-            if(m.Url.Contains(".mp4"))
+            if (m.Url.Contains(".mp4"))
             {
                 MediaElement video = new MediaElement();
                 video.LoadedBehavior = MediaState.Manual;
@@ -1070,22 +1093,27 @@ namespace Who_s_the_funniest__Meme_edition
                 int loopNumber = 0;
                 video.MediaEnded += (sender, e) =>
                 {
-                    // boucle infini
-                    video.Position = new TimeSpan(0, 0, 0, 0, 1);
-                    video.Play();
-                    loopNumber++;
-
-                    // plus de son après 3 répétitions
-                    if(loopNumber >= 3)
+                    Application.Current.Dispatcher.Invoke(() =>
                     {
-                        video.Volume = 0;
-                    }
+                        // boucle infini
+                        video.Position = new TimeSpan(0, 0, 0, 0, 1);
+                        video.Play();
+                        loopNumber++;
+
+                        // plus de son après 3 répétitions
+                        if (loopNumber >= 3)
+                        {
+
+                                video.Volume = 0;
+                        }
+                    });
+
                 };
 
                 video.Source = new Uri(m.Url, UriKind.RelativeOrAbsolute);
-                video.Width = canvas.Width;
-                video.Height = canvas.Height;
-                canvas.Children.Add(video);
+                video.Width = ((Canvas)Border_MemeVoting.Child).Width;
+                video.Height = ((Canvas)Border_MemeVoting.Child).Height;
+                ((Canvas)Border_MemeVoting.Child).Children.Add(video);
                 video.Play();
             }
             else
@@ -1097,12 +1125,12 @@ namespace Who_s_the_funniest__Meme_edition
                 bitmapImage.EndInit();
 
                 img.Source = bitmapImage;
-                img.Width = canvas.Width;
-                img.Height = canvas.Height;
-                canvas.Children.Add(img);
+                img.Width = ((Canvas)Border_MemeVoting.Child).Width;
+                img.Height = ((Canvas)Border_MemeVoting.Child).Height;
+                ((Canvas)Border_MemeVoting.Child).Children.Add(img);
             }
 
-            foreach(ZoneTexte zt in m.Textes)
+            foreach (ZoneTexte zt in m.Textes)
             {
                 Viewbox vb = new Viewbox()
                 {
@@ -1115,9 +1143,9 @@ namespace Who_s_the_funniest__Meme_edition
                     VerticalContentAlignment = VerticalAlignment.Center,
                     HorizontalContentAlignment = HorizontalAlignment.Center,
 
-                    Background = zt.Background,
+                    Background = (SolidColorBrush)new BrushConverter().ConvertFromString(zt.Background), // Une erreur qui m'a pris 3h à résoudre =) on ne peut pas sérialize un Brush.
                     BorderBrush = Brushes.Transparent,
-                    Foreground = zt.Foreground,
+                    Foreground = (SolidColorBrush)new BrushConverter().ConvertFromString(zt.Foreground),
                     TextWrapping = TextWrapping.Wrap,
                     AcceptsReturn = true,
                     FontFamily = Label_impact_font.FontFamily,
@@ -1128,12 +1156,11 @@ namespace Who_s_the_funniest__Meme_edition
 
                 vb.Child = zone_de_texte;
 
-                canvas.Children.Add(vb);
+                ((Canvas)Border_MemeVoting.Child).Children.Add(vb);
                 Canvas.SetLeft(vb, zt.CanvasLeft);
                 Canvas.SetTop(vb, zt.CanvasTop);
             }
 
-            Border_MyMeme.Child = canvas;
 
             Label_MemeVoteName.Content = m.Nom;
         }
@@ -1148,7 +1175,36 @@ namespace Who_s_the_funniest__Meme_edition
             StackPanel_note.Visibility = Visibility.Visible;
             Label_WaitMemeOfOtherCounter.Visibility = Visibility.Hidden;
 
+            GameTimer.Stop();
+
+            // 10 seconds of voting per meme
+            DispatcherTimer timer_vote = new DispatcherTimer();
+            timer_vote.Interval = TimeSpan.FromMilliseconds(10000);
+
+            int actual_mème_showing = 0;
+
+            timer_vote.Tick += (sender, e) =>
+            {
+                if (actual_mème_showing < OtherPeopleMème.Count)
+                {
+                    Border_MemeVoting.Tag = OtherPeopleMème.First(x => x.FromId == Party.Players[actual_mème_showing].Id);
+                    // Display the meme
+            ShowMeme(OtherPeopleMème.First(x => x.FromId == Party.Players[actual_mème_showing].Id));
+
+                    actual_mème_showing++;
+                }
+            };
+
+            timer_vote.Start();
+
+
+            // Affiche déjà le premier mème (pour ne pas attendre 10 sec)
+            Border_MemeVoting.Tag = OtherPeopleMème.First(x => x.FromId == Party.Players[actual_mème_showing].Id);
+            // L'affiche
+            ShowMeme(OtherPeopleMème.First(x => x.FromId == Party.Players[actual_mème_showing].Id));
+
+            actual_mème_showing++;
+            timer_vote.Start();
         }
     }
-
 }
