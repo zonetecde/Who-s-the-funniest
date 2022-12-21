@@ -26,6 +26,8 @@ namespace Who_s_the_funniest.classe
         HERE_IS_THE_GAMES,
         GAME_LEFT,
         GAME_START,
-        MY_MEME
+        MY_MEME,
+        MY_VOTE,
+        MESSAGE
     }
 }

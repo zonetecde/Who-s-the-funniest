@@ -6,6 +6,12 @@
     <RootNamespace>Who_s_the_funniest</RootNamespace>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>icon_wtfme.ico</ApplicationIcon>
+    <PackageProjectUrl>https://github.com/zonetecde/Who-s-the-funniest</PackageProjectUrl>
+    <PackageIcon>icon_wtfme.png</PackageIcon>
+    <RepositoryUrl>https://github.com/zonetecde/Who-s-the-funniest</RepositoryUrl>
+    <PackageTags>jeu;game;meme;fun;multiplayer</PackageTags>
+    <FileVersion>1.0.4</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,8 +23,16 @@
     <None Remove="fonts\PlusJakartaSans-Medium.ttf" />
     <None Remove="fonts\PlusJakartaSans-Regular.ttf" />
     <None Remove="fonts\PlusJakartaSans-VariableFont_wght.ttf" />
+    <None Remove="icon\icon_wtfme.ico" />
+    <None Remove="icon_wtfme.png" />
+    <None Remove="message.png" />
+    <None Remove="podium.png" />
     <None Remove="uc\crown.png" />
     <None Remove="—Pngtree—false free png_4863857.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="icon_wtfme.ico" />
   </ItemGroup>
 
   <ItemGroup>
@@ -38,7 +52,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="add.png" />
+    <Resource Include="assets\add.png" />
     <EmbeddedResource Include="assets\sound_off.png" />
     <EmbeddedResource Include="assets\sound_on.png" />
     <Resource Include="assets\stopwatch.png" />
@@ -47,6 +61,10 @@
     <Resource Include="fonts\PlusJakartaSans-Regular.ttf" />
     <Resource Include="fonts\PlusJakartaSans-VariableFont_wght.ttf" />
     <Resource Include="assets\close.png" />
+    <Resource Include="icon\icon_wtfme.ico" />
+    <Resource Include="icon\icon_wtfme.png" />
+    <Resource Include="assets\message.png" />
+    <Resource Include="assets\podium.png" />
     <Resource Include="uc\crown.png" />
   </ItemGroup>
 
@@ -55,6 +73,9 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Update="uc\UC_noGame.xaml.cs">
+      <SubType>Code</SubType>
     </Compile>
     <Compile Update="uc\UC_party.xaml.cs">
       <SubType>Code</SubType>

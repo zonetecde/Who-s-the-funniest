@@ -83,7 +83,9 @@ namespace Who_s_the_funniest__Meme_edition.uc
 
             // si plus personne dans la game on la supp
             if (Party.Players.Count == 0)
+            {
                 this.Visibility = Visibility.Collapsed;
+            }
         }
     }
 }

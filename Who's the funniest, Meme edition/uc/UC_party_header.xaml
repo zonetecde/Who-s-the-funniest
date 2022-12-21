@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:Who_s_the_funniest__Meme_edition.uc"
              mc:Ignorable="d" 
              d:DesignHeight="100" Height="100" d:DesignWidth="800" >
-    <Border CornerRadius="35,35,0,0" Background="#33000000">
+    <Border CornerRadius="35,35,0,0" Background="#33000000" BorderThickness="2,2,2,0" BorderBrush="Black">
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="6.5*"/>

@@ -20,6 +20,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -64,15 +65,14 @@ namespace Who_s_the_funniest__Meme_edition
         {
             InitializeComponent();
 
-            StackPanel_party.Children.Add(new UC_party_header());
-
-            Label_SearchPlayer.Visibility = Visibility.Visible;
+            Label_ConnexionServer.Visibility = Visibility.Visible;
             Grid_LogIn.Visibility = Visibility.Visible;
             Grid_CreateNewGame.Visibility = Visibility.Hidden;
             Grid_GameJoined.Visibility = Visibility.Hidden;
             Grid_GameSearcher.Visibility = Visibility.Visible;
             Grid_Game.Visibility = Visibility.Hidden;
             Grid_Vote.Visibility = Visibility.Hidden;
+            Grid_Leaderboard.Visibility = Visibility.Hidden;
 
             TextBox_Username.Text = Who_s_the_funniest.Properties.Settings.Default.Username;
 
@@ -97,7 +97,7 @@ namespace Who_s_the_funniest__Meme_edition
                     await Task.Delay(250);
                 }
 
-                Label_SearchPlayer.Visibility = Visibility.Hidden;
+                Label_ConnexionServer.Visibility = Visibility.Hidden;
                 ((AnimationExtension)this.DataContext).StopAnimation();
             }
             catch
@@ -115,13 +115,16 @@ namespace Who_s_the_funniest__Meme_edition
         /// <param name="playerIdToRemove"></param>
         private void RemoveSomeoneFromTheGameWhereHeIs(string playerIdToRemove)
         {
-            foreach (var party in StackPanel_party.Children)
+            for (int i1 = 0; i1 < StackPanel_party.Children.Count; i1++)
             {
+                object? party = StackPanel_party.Children[i1];
                 if (party is UC_party)
                 {
                     if (((UC_party)party).Party.Players.Any(x => x.Id == playerIdToRemove))
                     {
                         ((UC_party)party).SomeoneLeft(((UC_party)party).Party.Players.FirstOrDefault(x => x.Id == playerIdToRemove)!);
+                        if (((UC_party)party).Visibility == Visibility.Collapsed)
+                            StackPanel_party.Children.Remove(((UC_party)party));
 
                         // Si il s'est enlevé de la game où on est actuellement
                         if (Party != null)
@@ -153,6 +156,19 @@ namespace Who_s_the_funniest__Meme_edition
                                     Button_StartGame.IsEnabled = true;
                                 else
                                     Button_StartGame.IsEnabled = false;
+
+                                // Si on est en game, en train de faire les mèmes et que la personne se déco on vérifie que peut être il y a tous le monde qui a envoyé leur mème
+                                if(Grid_MemeMaker.Visibility == Visibility.Visible || (StackPanel_note.Visibility == Visibility.Hidden && Grid_Vote.Visibility == Visibility.Visible))
+                                {
+                                    // Si on a reçu tous les mèmes ont peut commencer le vote
+                                    if (OtherPeopleMème.Count == Party.Players.Count)
+                                    {
+                                        Application.Current.Dispatcher.Invoke(() =>
+                                        {
+                                            StartVoting();
+                                        });
+                                    }
+                                }
                             }
                         }
                     }
@@ -246,6 +262,7 @@ namespace Who_s_the_funniest__Meme_edition
                 ZoneckClient.Send(JsonConvert.SerializeObject(new WhosTheFunniestMessage(MessageType.NEW_PARTY, JsonConvert.SerializeObject(party))));
 
                 Grid_CreateNewGame.Visibility = Visibility.Hidden;
+                UC_NoGame.Visibility = StackPanel_party.Children.Count > 2 ? Visibility.Collapsed : Visibility.Visible;
             }
         }
 
@@ -283,6 +300,9 @@ namespace Who_s_the_funniest__Meme_edition
                 // Game start
                 StartGameVisual(Party.Id.ToString());
             }
+
+            image_conversation.Visibility = Visibility.Visible;
+            Label_newMess.Visibility = Visibility.Visible;
         }
 
         /// <summary>
@@ -297,16 +317,31 @@ namespace Who_s_the_funniest__Meme_edition
 
             // s'enlève de la game
             // si la game est vide (0 player) alors on l'enlève carrément (dans .SomeoneLeft)
-            foreach (UIElement ui in StackPanel_party.Children)
+            for (int i = 0; i < StackPanel_party.Children.Count; i++)
             {
-                if(ui is UC_party)
+                UIElement ui = (UIElement)StackPanel_party.Children[i];
+                if (ui is UC_party)
                 {
                     if (((UC_party)ui).Party.Id == Party.Id)
+                    {
                         ((UC_party)ui).SomeoneLeft(new Player(Username, ZoneckClient.MyId));
+
+                        if (((UC_party)ui).Visibility == Visibility.Collapsed)
+                            StackPanel_party.Children.Remove(((UC_party)ui));
+
+
+                    }
                 }
             }
 
             Party = null;
+            image_conversation.Visibility = Visibility.Collapsed;
+            Border_Conversation.Visibility = Visibility.Collapsed;
+            Label_newMess.Visibility = Visibility.Collapsed;
+
+
+
+            UC_NoGame.Visibility = StackPanel_party.Children.Count > 2 ? Visibility.Collapsed : Visibility.Visible;
         }
 
         #endregion
@@ -359,6 +394,7 @@ namespace Who_s_the_funniest__Meme_edition
                     Application.Current.Dispatcher.Invoke(() =>
                     {
                         StackPanel_party.Children.Add(new uc.UC_party(p, GameJoined));
+                        UC_NoGame.Visibility = StackPanel_party.Children.Count > 2 ? Visibility.Collapsed : Visibility.Visible;
                     });
                 }
                 else if (wtfM.MsgType == MessageType.JOIN_PARTY)
@@ -377,7 +413,7 @@ namespace Who_s_the_funniest__Meme_edition
                                     ((UC_party)uc_Party).AddNewPlayer(j.Username, j.Id);
 
                                     // si la game est pleine 
-                                    if(((UC_party)uc_Party).Party.Players.Count == ((UC_party)uc_Party).Party.NbreJoueurMax)
+                                    if (((UC_party)uc_Party).Party.Players.Count == ((UC_party)uc_Party).Party.NbreJoueurMax)
                                     {
                                         // Game start
                                         StartGameVisual(((UC_party)uc_Party).Party.Id.ToString());
@@ -393,7 +429,7 @@ namespace Who_s_the_funniest__Meme_edition
                             {
                                 StackPanel_PlayerInGame.Children.Add(new UC_PlayerInGame(new Player(j.Username, j.Id), false));
 
-                                if(Party.Players.Count >= MIN_PLAYER_TO_START)
+                                if (Party.Players.Count >= MIN_PLAYER_TO_START)
                                     Button_StartGame.IsEnabled = true;
                                 else
                                     Button_StartGame.IsEnabled = false;
@@ -425,13 +461,15 @@ namespace Who_s_the_funniest__Meme_edition
                     Application.Current.Dispatcher.Invoke(() =>
                     {
                         // On a reçu les games de quelqu'un après leur avoir demandé
-                        if (StackPanel_party.Children.Count == 1)
+                        if (StackPanel_party.Children.Count == 2)
                         {
 
                             JsonConvert.DeserializeObject<List<Party>>(wtfM.Content)!.ForEach(x =>
                             {
                                 StackPanel_party.Children.Add(new UC_party(x, GameJoined));
                             });
+
+                            UC_NoGame.Visibility = StackPanel_party.Children.Count > 2 ? Visibility.Collapsed : Visibility.Visible;
                         }
                     });
 
@@ -442,6 +480,9 @@ namespace Who_s_the_funniest__Meme_edition
                     Application.Current.Dispatcher.Invoke(() =>
                     {
                         RemoveSomeoneFromTheGameWhereHeIs(wtfM.Content);
+
+                        UC_NoGame.Visibility = StackPanel_party.Children.Count > 2 ? Visibility.Collapsed : Visibility.Visible;
+
                     });
                 }
                 else if (wtfM.MsgType == MessageType.GAME_START)
@@ -451,15 +492,21 @@ namespace Who_s_the_funniest__Meme_edition
                     Application.Current.Dispatcher.Invoke(() =>
                     {
                         StartGameVisual(wtfM.Content);
+
+                        UC_NoGame.Visibility = StackPanel_party.Children.Count > 2 ? Visibility.Collapsed : Visibility.Visible;
+
                     });
                 }
-                else if(wtfM.MsgType == MessageType.MY_MEME)
+
+                #endregion
+
+                else if (wtfM.MsgType == MessageType.MY_MEME)
                 {
                     // Quelqu'un a envoyé son mème
                     OtherPeopleMème.Add(JsonConvert.DeserializeObject<Mème>(wtfM.Content));
 
                     // Si on a reçu tous les mèmes ont peut commencer le vote
-                    if(OtherPeopleMème.Count == Party.Players.Count)
+                    if (OtherPeopleMème.Count == Party.Players.Count)
                     {
                         Application.Current.Dispatcher.Invoke(() =>
                         {
@@ -476,8 +523,28 @@ namespace Who_s_the_funniest__Meme_edition
                         });
                     }
                 }
-                
-                #endregion
+                else if (wtfM.MsgType == MessageType.MY_VOTE)
+                {
+                    // Id de la personne qui a fait le mème,note
+                    var meme = OtherPeopleMème.FirstOrDefault(x => x.FromId == wtfM.Content.Split(',')[0]);
+                    if(meme != default)
+                    {
+                        // Ajoute la note au mème
+                        meme.Notes.Add(Convert.ToInt32(wtfM.Content.Split(',')[1]));
+                    }
+                }
+                else if (wtfM.MsgType == MessageType.MESSAGE)
+                {
+                    // message
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        StackPanel_Conversation.Children.Add(new UC_Message(wtfM.Content, Party.Players.First(x => x.Id == obj.Id).Username));
+                        ScrollViewer_message.ScrollToBottom();
+
+                        if (Border_Conversation.Visibility != Visibility.Visible)
+                            Label_newMess.Content = Convert.ToInt16(Label_newMess.Content) + 1;
+                    });
+                }
             }
 
             // Une personne s'est déconnecté, on la supp de toutes les games
@@ -1024,7 +1091,6 @@ namespace Who_s_the_funniest__Meme_edition
             // Il faut au minimum une zone de texte
             if (ZoneDeTexte.Any() || sender == null) // ||sender == null : le mème a été forcé à être envoyé (countdown à 0)
             {
-
                 Mème m = new Mème(nom_et_url.Split('|')[0], nom_et_url.Split('|')[1], ZoneDeTexte, ZoneckClient.MyId, Username);
                 OtherPeopleMème.Add(m);
 
@@ -1044,15 +1110,13 @@ namespace Who_s_the_funniest__Meme_edition
                 // Si on a reçu tous les mèmes ont peut commencer le vote
                 if (OtherPeopleMème.Count == Party.Players.Count)
                 {
-
-                    StartVoting();
-                   
+                    StartVoting();                 
                 }
                 else
                 {
                     // On attend que tout le monde envois leur mème
                     Grid_Vote.Visibility = Visibility.Visible;                    
-                    ShowMeme(m);
+                    ShowMeme(Grid_MemeVote, m);
                     StackPanel_note.Visibility = Visibility.Hidden;
                     Label_WaitMemeOfOtherCounter.Visibility = Visibility.Visible;
                     Run_MemeCounter.Text = OtherPeopleMème.Count + "/" + Party.Players.Count;
@@ -1069,9 +1133,20 @@ namespace Who_s_the_funniest__Meme_edition
         /// </summary>
         /// <param name="border_MyMeme"></param>
         /// <param name="m"></param>
-        private void ShowMeme(Mème m)
+        private void ShowMeme(Panel panel, Mème m, double volume = 0.3)
         {
-            Border_MemeVoting.Child = null;
+            panel.Children.Clear();
+
+            Viewbox viewbox = new Viewbox();
+            Border Border_Meme = new Border()
+            {
+                CornerRadius = new CornerRadius(50),
+                Background = Brushes.White,
+                BorderBrush = (SolidColorBrush)new BrushConverter().ConvertFromString("#FF1C2638"),
+                BorderThickness = new Thickness(3)
+            };
+
+            viewbox.Child = Border_Meme;
 
             Canvas canvas = new Canvas()
             {
@@ -1081,15 +1156,16 @@ namespace Who_s_the_funniest__Meme_edition
                 Margin = new Thickness(20),
             };
 
-            Border_MemeVoting.Child = canvas;
-            
+            Border_Meme.Child = canvas;
+            panel.Children.Add(viewbox);
+
             // Image/Vidéo du mème
             if (m.Url.Contains(".mp4"))
             {
                 MediaElement video = new MediaElement();
                 video.LoadedBehavior = MediaState.Manual;
 
-                video.Volume = 0.3;
+                video.Volume = volume;
                 int loopNumber = 0;
                 video.MediaEnded += (sender, e) =>
                 {
@@ -1103,17 +1179,16 @@ namespace Who_s_the_funniest__Meme_edition
                         // plus de son après 3 répétitions
                         if (loopNumber >= 3)
                         {
-
-                                video.Volume = 0;
+                            video.Volume = 0;
                         }
                     });
 
                 };
 
                 video.Source = new Uri(m.Url, UriKind.RelativeOrAbsolute);
-                video.Width = ((Canvas)Border_MemeVoting.Child).Width;
-                video.Height = ((Canvas)Border_MemeVoting.Child).Height;
-                ((Canvas)Border_MemeVoting.Child).Children.Add(video);
+                video.Width = ((Canvas)Border_Meme.Child).Width;
+                video.Height = ((Canvas)Border_Meme.Child).Height;
+                ((Canvas)Border_Meme.Child).Children.Add(video);
                 video.Play();
             }
             else
@@ -1125,9 +1200,9 @@ namespace Who_s_the_funniest__Meme_edition
                 bitmapImage.EndInit();
 
                 img.Source = bitmapImage;
-                img.Width = ((Canvas)Border_MemeVoting.Child).Width;
-                img.Height = ((Canvas)Border_MemeVoting.Child).Height;
-                ((Canvas)Border_MemeVoting.Child).Children.Add(img);
+                img.Width = ((Canvas)Border_Meme.Child).Width;
+                img.Height = ((Canvas)Border_Meme.Child).Height;
+                ((Canvas)Border_Meme.Child).Children.Add(img);
             }
 
             foreach (ZoneTexte zt in m.Textes)
@@ -1156,7 +1231,7 @@ namespace Who_s_the_funniest__Meme_edition
 
                 vb.Child = zone_de_texte;
 
-                ((Canvas)Border_MemeVoting.Child).Children.Add(vb);
+                ((Canvas)Border_Meme.Child).Children.Add(vb);
                 Canvas.SetLeft(vb, zt.CanvasLeft);
                 Canvas.SetTop(vb, zt.CanvasTop);
             }
@@ -1178,33 +1253,237 @@ namespace Who_s_the_funniest__Meme_edition
             GameTimer.Stop();
 
             // 10 seconds of voting per meme
-            DispatcherTimer timer_vote = new DispatcherTimer();
-            timer_vote.Interval = TimeSpan.FromMilliseconds(10000);
+            DispatcherTimer timer_vote_memeShower = new DispatcherTimer();
+            timer_vote_memeShower.Interval = TimeSpan.FromMilliseconds(15000); // 15 secondes de vote par mème
 
+            
             int actual_mème_showing = 0;
 
-            timer_vote.Tick += (sender, e) =>
+            timer_vote_memeShower.Tick += async (sender, e) =>
             {
-                if (actual_mème_showing < OtherPeopleMème.Count)
-                {
-                    Border_MemeVoting.Tag = OtherPeopleMème.First(x => x.FromId == Party.Players[actual_mème_showing].Id);
-                    // Display the meme
-            ShowMeme(OtherPeopleMème.First(x => x.FromId == Party.Players[actual_mème_showing].Id));
 
-                    actual_mème_showing++;
+                // Récupère le vote du mème précédemment affiché.
+                int vote = -1;
+
+                // Réinitialise les votes et le récupère
+                foreach (Border b in StackPanel_note.Children)
+                {
+                    if (((Label)(b).Child).Opacity == 1)
+                        vote = Convert.ToInt32(((Label)(b).Child).Content);
+
+                    ((Label)(b).Child).Opacity = 0.5;
+                    ((Label)(b).Child).FontWeight = FontWeights.Regular;
                 }
+
+                // Si le vote = -1 : l'utilisateur n'a pas voté
+                if (vote != -1)
+                {
+                    // Envois le vote
+                    foreach (Player player in Party.Players)
+                    {
+                        // ID_DU_PLAYER_QUI_A_FAIT_LE_MEME,note
+                        ZoneckClient.Send(JsonConvert.SerializeObject(new WhosTheFunniestMessage(MessageType.MY_VOTE, ((Mème)Grid_MemeVote.Tag).FromId + "," + vote)));
+                    }
+
+                    // l'ajoute
+                    OtherPeopleMème.First(x => x.FromId == ((Mème)Grid_MemeVote.Tag).FromId).Notes.Add(vote);
+                }
+
+                if (actual_mème_showing >= OtherPeopleMème.Count)
+                {
+                    // Tous les mèmes ont été montré
+                    timer_vote_memeShower.Stop();
+
+                    // On attend un peu avant quand même qu'on reçoit toutes les notes
+                    await Task.Delay(3000);
+
+                    // On affiche maintenant le leaderBord avec les meilleurs mèmes
+                    ShowLeaderBoard();
+                }
+
+                // Montre le prochain mème
+                ShowMemeToVote(actual_mème_showing);
+                actual_mème_showing++;
             };
 
-            timer_vote.Start();
-
+            timer_vote_memeShower.Start();
 
             // Affiche déjà le premier mème (pour ne pas attendre 10 sec)
-            Border_MemeVoting.Tag = OtherPeopleMème.First(x => x.FromId == Party.Players[actual_mème_showing].Id);
-            // L'affiche
-            ShowMeme(OtherPeopleMème.First(x => x.FromId == Party.Players[actual_mème_showing].Id));
+            ShowMemeToVote(actual_mème_showing);
 
             actual_mème_showing++;
-            timer_vote.Start();
+            
+        }
+
+        /// <summary>
+        /// Affiche le leaderBoard des meilleurs mèmes
+        /// </summary>
+        private void ShowLeaderBoard()
+        {
+            Grid_Leaderboard.Visibility = Visibility.Visible;
+            Grid_Vote.Visibility = Visibility.Hidden;
+
+            // trie les mèmes en fonction des meilleurs notes
+            OtherPeopleMème = OtherPeopleMème.OrderByDescending(x => {
+                if (x.Notes.Any())
+                    return x.Notes.Average();
+                else
+                    return 0;
+            }).ToList();
+
+            // Affiche les 3 meilleurs
+            try
+            {
+                Grid_FirstPlace.Children.Clear();
+                Grid_SecondPlace.Children.Clear();
+                Grid_ThirdPlace.Children.Clear();
+                Label_FirstPlace.Content = string.Empty;
+                Label_SecondPlace.Content = string.Empty;
+                Label_ThirdPlace.Content = string.Empty;
+                ShowMeme(Grid_FirstPlace, OtherPeopleMème[0], 0);
+                Label_FirstPlace.Content = OtherPeopleMème[0].FromUsername;
+                ShowMeme(Grid_SecondPlace, OtherPeopleMème[1], 0);
+                Label_SecondPlace.Content = OtherPeopleMème[1].FromUsername;
+                ShowMeme(Grid_ThirdPlace, OtherPeopleMème[2], 0);
+                Label_ThirdPlace.Content = OtherPeopleMème[2].FromUsername;
+            }
+            catch 
+            { 
+            }
+        }
+
+        /// <summary>
+        /// Affiche un mème pour le voter
+        /// </summary>
+        /// <param name="actual_mème_showing"></param>
+        private void ShowMemeToVote(int actual_mème_showing)
+        {
+            if (Grid_Leaderboard.Visibility == Visibility.Hidden)
+            {
+                Mème m = OtherPeopleMème.First(x => x.FromId == Party.Players[actual_mème_showing].Id);
+                Grid_MemeVote.Tag = m;
+                // L'affiche
+                ShowMeme(Grid_MemeVote, m);
+                // Timer de vote
+                var anim = new DoubleAnimation((double)0, (double)100, new TimeSpan(0, 0, 0, 15, 0));
+                (ProgressBar_VoteTimer as ProgressBar).BeginAnimation(ProgressBar.ValueProperty, anim, HandoffBehavior.Compose);
+
+                // Si c'est notre mème on peut pas voter pour lui
+                if (m.FromId == ZoneckClient.MyId)
+                    StackPanel_note.Cursor = Cursors.No;
+                else
+                    StackPanel_note.Cursor = Cursors.Arrow;
+            }
+        }
+
+        /// <summary>
+        /// Note animation
+        /// </summary>
+        private void Border_Note_MouseEnter(object sender, MouseEventArgs e)
+        {
+            // Label à l'intérieur se met en gras
+            if(StackPanel_note.Cursor != Cursors.No)
+                ((Label)((Border)sender).Child).FontWeight = FontWeights.Bold; 
+        }
+
+        /// <summary>
+        /// Note animation
+        /// </summary>
+        private void Border_Note_MouseLeave(object sender, MouseEventArgs e)
+        {
+            // Label à l'intérieur n'est plus en gras
+            if(((Label)((Border)sender).Child).Opacity != 1)
+                ((Label)((Border)sender).Child).FontWeight = FontWeights.Regular;
+        }
+
+        /// <summary>
+        /// Note cliqué
+        /// </summary>
+        private void Border_Note_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            // Sinon c'est que c'est notre mème et on peut pas voter pour nous-même
+            if(((Label)((Border)sender).Child).FontWeight == FontWeights.Bold)
+            {
+                // Enlève les autres validation de note
+                foreach (Border b in StackPanel_note.Children)
+                {
+                    ((Label)(b).Child).Opacity = 0.5;
+                    ((Label)(b).Child).FontWeight = FontWeights.Regular;
+                }
+
+                ((Label)((Border)sender).Child).Opacity = 1;
+                ((Label)((Border)sender).Child).FontWeight = FontWeights.Bold;
+            }
+        }
+
+        /// <summary>
+        /// Retourne au menu principal, partie terminé
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Button_GameFinish_Click(object sender, RoutedEventArgs e)
+        {
+            Grid_Leaderboard.Visibility = Visibility.Hidden;
+            Grid_GameSearcher.Visibility = Visibility.Visible;
+            Label_newMess.Visibility = Visibility.Hidden;
+            image_conversation.Visibility = Visibility.Hidden;
+            Party = null;
+        }
+
+        /// <summary>
+        /// Ouvre le tchat de la partie
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Image_Conversation_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if(e.LeftButton == MouseButtonState.Pressed)
+            {
+                Border_Conversation.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void Image_Close_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                Border_Conversation.Visibility = Visibility.Collapsed;
+                Label_newMess.Content = "";
+            }
+        }
+
+        /// <summary>
+        /// Enlève watermark
+        /// </summary>
+        private void TextBox_Message_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (Textbox_Message.Text == "Écriver un message...")
+                Textbox_Message.Text = string.Empty;
+        }
+
+        /// <summary>
+        /// Envois un message
+        /// </summary>
+        private void Button_Send_Click(object sender, RoutedEventArgs e)
+        {
+            if (Party != null && !String.IsNullOrEmpty(Textbox_Message.Text) && Textbox_Message.Text != "Écriver un message...")
+            {
+                foreach (Player player in Party.Players)
+                {
+                    if(player.Id != ZoneckClient.MyId)
+                        ZoneckClient.Send(JsonConvert.SerializeObject(new WhosTheFunniestMessage(MessageType.MESSAGE, Textbox_Message.Text)), player.Id);
+                }
+
+                StackPanel_Conversation.Children.Add(new UC_Message(Textbox_Message.Text, Username));
+                Textbox_Message.Text = string.Empty;
+                ScrollViewer_message.ScrollToBottom();
+            }
+        }
+
+        private void Textbox_Message_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+                Button_Send_Click(this, null);
         }
     }
 }

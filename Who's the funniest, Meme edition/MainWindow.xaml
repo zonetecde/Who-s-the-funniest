@@ -6,9 +6,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Who_s_the_funniest__Meme_edition.uc"
         mc:Ignorable="d"
-        Title="Who's the funniest ? Meme edition" FontFamily="{StaticResource jakarta_regular}" MinHeight="768" d:Height="768" d:Width="1024" MinWidth="1024" ContentRendered="Window_ContentRendered" WindowStartupLocation="CenterScreen" WindowState="Maximized">
+        Title="Who's the funniest ? Meme edition" FontFamily="{StaticResource jakarta_regular}" MinHeight="768" d:Height="768" d:Width="1024" MinWidth="1024" ContentRendered="Window_ContentRendered" WindowStartupLocation="CenterScreen" WindowState="Maximized" MouseLeftButtonUp="Window_MouseLeftButtonUp" Icon="icon/icon_wtfme.png">
     <Grid>
-        <Grid x:Name="Grid_GameSearcher" Visibility="Hidden">
+        <Grid x:Name="Grid_GameSearcher" Visibility="Visible">
 
             <Grid Background="#FF85586F">
                 <Grid.ColumnDefinitions>
@@ -26,11 +26,13 @@
                     <Grid>
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
                             <StackPanel x:Name="StackPanel_party">
+                                <local:UC_party_header/>
+                                <local:UC_noGame x:Name="UC_NoGame"/>
                             </StackPanel>
                         </ScrollViewer>
-                        <Image Source="/add.png" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="80" Height="80" Margin="0,0,20,20" MouseDown="Image_CreateGame_MouseDown"/>
+                        <Image Source="assets/add.png" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="80" Height="80" Margin="0,0,20,20" MouseDown="Image_CreateGame_MouseDown"/>
 
-                        <Border Visibility="Visible" x:Name="Grid_CreateNewGame" CornerRadius="35,35,35,35" Background="#7F000000" BorderBrush="#FFD0B8A8" BorderThickness="2,2,2,2">
+                        <Border Visibility="Hidden" x:Name="Grid_CreateNewGame" CornerRadius="35,35,35,35" Background="#7F000000" BorderBrush="#FFD0B8A8" BorderThickness="2,2,2,2">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="1*"/>
@@ -117,13 +119,13 @@
                      FontSize="30" Padding="10,0,10,0" MaxLength="12" KeyDown="TextBox_UserName_KeyDown"/>
                 <Button Content="Entrer" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,300,0,0" Width="300" Height="40" FontSize="20" Background="#FFBFA3A3" Foreground="Black" BorderBrush="Black" Click="Button_LogIn_Click"/>
             </Grid>
-            <Label x:Name="Label_SearchPlayer" Background="#CC000000" FontFamily="Consolas" FontSize="32" Content="{Binding SearchForPlayerAnimatedText}" 
+            <Label x:Name="Label_ConnexionServer" Background="#CC000000" FontFamily="Consolas" FontSize="32" Content="{Binding SearchForPlayerAnimatedText}" 
                Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
                Visibility="Hidden"/>
 
         </Grid>
 
-        <Grid x:Name="Grid_Game" Visibility="Visible">
+        <Grid x:Name="Grid_Game" Visibility="Hidden">
             <Grid x:Name="Grid_MemeMaker" Background="#FF2B3A55">
 
                 <Grid.ColumnDefinitions>
@@ -210,11 +212,12 @@
                 <Button Grid.Column="1" Grid.Row="2" Width="400" Height="40" VerticalAlignment="Top" Margin="0,5,0,0" Background="#FFDDFFCF" BorderBrush="Black" Content="Valider son mème" FontSize="20" Click="Button_ValideMeme_Click"/>
                 <Image x:Name="image" Grid.Column="4" Grid.Row="3"  Source="/assets/stopwatch.png" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,5,5"/>
                 <Viewbox  Grid.Column="4" Grid.Row="3" Width="{Binding ActualWidth, ElementName=image, Mode=OneWay}" Height="{Binding ActualHeight, ElementName=image, Mode=OneWay}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,5,5" >
-                    <Label x:Name="label_timer" Content="90" Padding="7,7,7,5" FontFamily="Consolas"/>
+                    <Label x:Name="label_timer" Content="90" Padding="7,7,7,5" FontFamily="Consolas" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
                 </Viewbox>
             </Grid>
 
-            <Grid x:Name="Grid_Vote" Visibility="Visible">
+            <Grid x:Name="Grid_Vote" Visibility="Hidden">
+
                 <Grid.Background>
                     <RadialGradientBrush>
                         <GradientStop Color="#FF756767" Offset="0.076"/>
@@ -234,44 +237,104 @@
                     <RowDefinition Height="0.3*"/>
                 </Grid.RowDefinitions>
 
+                <ProgressBar x:Name="ProgressBar_VoteTimer"  Grid.RowSpan="3" Grid.ColumnSpan="3" Background="#00000000" Value="0" Foreground="#19000000" Orientation="Vertical" RenderTransformOrigin="0.5,0.5">
+                    <ProgressBar.RenderTransform>
+                        <TransformGroup>
+                            <ScaleTransform/>
+                            <SkewTransform/>
+                            <RotateTransform Angle="180"/>
+                            <TranslateTransform/>
+                        </TransformGroup>
+                    </ProgressBar.RenderTransform>
+
+                </ProgressBar>
+
                 <Viewbox Grid.Row="0" Grid.Column="1">
                     <Label x:Name="Label_MemeVoteName" Content="Titre du meme" Foreground="White" VerticalAlignment="Bottom" Padding="5,20,5,0" Margin="0,0,0,2.5"/>
                 </Viewbox>
-                <Viewbox Grid.Column="1" Grid.Row="1">
-                    <Border x:Name="Border_MemeVoting"  Background="White" CornerRadius="50,50,50,50" BorderBrush="#FF1C2638" BorderThickness="3,3,3,3" >
-                    </Border>
-                </Viewbox>
+                <Grid x:Name="Grid_MemeVote" Grid.Column="1" Grid.Row="1">
 
-                <TextBlock x:Name="Label_WaitMemeOfOtherCounter" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="30" TextAlignment="Center" Margin="0,20,0,0">
+                </Grid>
+
+                <TextBlock x:Name="Label_WaitMemeOfOtherCounter" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="30" TextAlignment="Center" Margin="0,20,0,0" Visibility="Collapsed">
                     <Run Text="En attente des mèmes des autres joueurs..."/>
                     <LineBreak/>
                     <Run x:Name="Run_MemeCounter" Text="1/12" FontSize="50"/>
                 </TextBlock>
-                <StackPanel x:Name="StackPanel_note" Grid.Row="2" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,15,0,0" Width="550" Height="110" Visibility="Hidden">
-                    <Border  Background="#FFF54B4B" BorderBrush="Black" CornerRadius="20,0,0,20" BorderThickness="2,2,0,2">
+                <StackPanel x:Name="StackPanel_note" Grid.Row="2" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,15,0,0" Width="550" Height="110">
+                    <Border  Background="#FFF54B4B" BorderBrush="Black" CornerRadius="20,0,0,20" BorderThickness="2,2,0,2" Tag="1" MouseEnter="Border_Note_MouseEnter" MouseLeave="Border_Note_MouseLeave" MouseDown="Border_Note_MouseDown">
+
                         <Label Content="1" Width="110" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" 
-                               FontSize="70" Padding="0,0,0,0"/>
+                               FontSize="70" Padding="0,0,0,0" Foreground="Black" Opacity="0.5"/>
                     </Border>
-                    <Border  Background="#FFF96F6F" BorderBrush="Black" BorderThickness="0,2,0,2">
+                    <Border MouseEnter="Border_Note_MouseEnter" MouseLeave="Border_Note_MouseLeave"  MouseDown="Border_Note_MouseDown" Background="#FFF96F6F" BorderBrush="Black" BorderThickness="0,2,0,2" Tag="2">
                         <Label Content="2" Width="109" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" 
-                               FontSize="70" Padding="0,0,0,0"/>
+                               FontSize="70" Padding="0,0,0,0"  Opacity="0.5"/>
                     </Border>
-                    <Border  Background="#FFF6FDCE" BorderBrush="Black" BorderThickness="0,2,0,2">
+                    <Border MouseEnter="Border_Note_MouseEnter" MouseLeave="Border_Note_MouseLeave"  MouseDown="Border_Note_MouseDown" Background="#FFF6FDCE" BorderBrush="Black" BorderThickness="0,2,0,2" Tag="3">
                         <Label Content="3" Width="109" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" 
-                               FontSize="70" Padding="0,0,0,0"/>
+                               FontSize="70" Padding="0,0,0,0"  Opacity="0.5"/>
                     </Border>
-                    <Border  Background="#FFDBFFA8" BorderBrush="Black" BorderThickness="0,2,0,2">
+                    <Border MouseEnter="Border_Note_MouseEnter" MouseLeave="Border_Note_MouseLeave"  MouseDown="Border_Note_MouseDown" Background="#FFDBFFA8" BorderBrush="Black" BorderThickness="0,2,0,2" Tag="4">
                         <Label Content="4" Width="109" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" 
-                               FontSize="70" Padding="0,0,0,0"/>
+                               FontSize="70" Padding="0,0,0,0"  Opacity="0.5"/>
                     </Border>
-                    <Border  Background="#FF52EC7F" BorderBrush="Black" CornerRadius="0,20,20,0" BorderThickness="0,2,2,2">
+                    <Border MouseEnter="Border_Note_MouseEnter" MouseLeave="Border_Note_MouseLeave"  MouseDown="Border_Note_MouseDown" Background="#FF52EC7F" BorderBrush="Black" CornerRadius="0,20,20,0" BorderThickness="0,2,2,2" Tag="5">
                         <Label Content="5" Width="109" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" 
-                               FontSize="70" Padding="0,0,0,0"/>
+                               FontSize="70" Padding="0,0,0,0"  Opacity="0.5"/>
                     </Border>
                 </StackPanel>
+            </Grid>
+
+            <Grid x:Name="Grid_Leaderboard">
+                <Grid.Background>
+                    <RadialGradientBrush>
+                        <GradientStop Color="#FF576B9C" Offset="0.191"/>
+                        <GradientStop Color="#FF91A3CE" Offset="1"/>
+                    </RadialGradientBrush>
+                </Grid.Background>
+
+                <Viewbox>
+                    <Canvas Width="1024" Height="768" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+                        <Image Canvas.Bottom="-200" Width="1024" Height="768" Source="assets/podium.png"/>
+                        <Grid x:Name="Grid_SecondPlace" Height="247" Width="247" Canvas.Left="120" Canvas.Top="265" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                        <Label x:Name="Label_SecondPlace" HorizontalAlignment="Center" Height="72" VerticalAlignment="Top" Width="247" Canvas.Top="504" Canvas.Left="120" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="20" FontWeight="Bold"/>
+                        <Grid x:Name="Grid_ThirdPlace" Height="224" Width="224" Canvas.Left="664" Canvas.Top="319" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                        <Label x:Name="Label_ThirdPlace" HorizontalAlignment="Center" Height="72" VerticalAlignment="Top" Width="222" Canvas.Top="538" Canvas.Left="664" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="20" FontWeight="Bold" />
+                        <Label x:Name="Label_FirstPlace" HorizontalAlignment="Center" Height="72" VerticalAlignment="Top" Width="222" Canvas.Top="378" Canvas.Left="401" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="20" FontWeight="Bold"/>
+                        <Grid x:Name="Grid_FirstPlace" Height="258" Width="258" Canvas.Left="388" Canvas.Top="140" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                    </Canvas>
+                </Viewbox>
+
+                <Button VerticalContentAlignment="Center" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,50,0,0" Width="300" Height="50" Content="Retourner au menu principal" FontSize="20" Background="#7FFFFFFF" BorderBrush="Black" Click="Button_GameFinish_Click"/>
+
+                <StackPanel x:Name="StackPanel_LeaderBoard"/>
             </Grid>
         </Grid>
 
         <Label x:Name="Label_impact_font" FontFamily="{StaticResource impacteur}" VerticalAlignment="Top" HorizontalAlignment="Left" Content="" FontSize="0.01" Foreground="Black" Background="#99000000" Width="0" Height="0"/>
+        <Image Visibility="Hidden" x:Name="image_conversation" Source="assets/message.png" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="70" Margin="10,0,0,10" MouseDown="Image_Conversation_MouseDown" Height="70"/>
+        <Label Visibility="Hidden" x:Name="Label_newMess" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="70" Margin="10,0,0,10"  MouseDown="Image_Conversation_MouseDown" Height="70" Content="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Bottom" FontWeight="Bold" Foreground="#FFFFF607" FontSize="14" />
+        <Border x:Name="Border_Conversation" VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="300" Height="400" 
+                Background="#FFEEFFE5" BorderThickness="0,2,2,0" BorderBrush="#FF6B6B6B" Visibility="Collapsed">
+            <Grid>
+                <Border Height="50" Background="#FFF1FFB7" BorderBrush="Black" BorderThickness="0,0,0,1" VerticalAlignment="Top">
+                    <Label Content="Conversation de la partie" VerticalContentAlignment="Center" FontSize="17" Margin="5,0,0,0"/>
+                </Border>
+
+                <Image Source="/assets/close.png" VerticalAlignment="Top" HorizontalAlignment="Right" Width="35" Margin="0,7,3,0" MouseDown="Image_Close_MouseDown"/>
+
+                <ScrollViewer x:Name="ScrollViewer_message" Margin="10,55,0,50">
+                    <Grid>
+                        <StackPanel x:Name="StackPanel_Conversation">
+        
+                        </StackPanel>
+                    </Grid>
+                </ScrollViewer>
+
+                <TextBox x:Name="Textbox_Message" Text="Écriver un message..." VerticalAlignment="Bottom" Height="50" Padding="10,0,0,0" VerticalContentAlignment="Center" FontSize="15" HorizontalScrollBarVisibility="Auto" Margin="0,0,50,0" BorderBrush="Black" BorderThickness="1,1,0,1" GotFocus="TextBox_Message_GotFocus" KeyDown="Textbox_Message_KeyDown"/>
+                <Button HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="50" Height="50" Background="White" BorderBrush="Black" Content="📨" FontSize="20" Click="Button_Send_Click"/>
+            </Grid>
+        </Border>
     </Grid>
 </Window>

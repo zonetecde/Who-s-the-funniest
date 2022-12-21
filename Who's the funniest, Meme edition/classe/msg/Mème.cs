@@ -22,5 +22,7 @@ namespace Who_s_the_funniest.classe.msg
         public List<ZoneTexte> Textes { get; set; }
         public string FromId { get; set; }
         public string FromUsername { get; set; }
+
+        public List<int> Notes = new List<int>();
     }
 }
