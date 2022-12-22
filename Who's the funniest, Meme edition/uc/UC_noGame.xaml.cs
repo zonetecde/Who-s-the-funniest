@@ -27,8 +27,6 @@ namespace Who_s_the_funniest__Meme_edition.uc
         public UC_noGame()
         {
             InitializeComponent();
-
-
         }
 
     }

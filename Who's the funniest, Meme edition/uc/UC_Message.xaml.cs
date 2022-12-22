@@ -20,12 +20,24 @@ namespace Who_s_the_funniest.uc
     /// </summary>
     public partial class UC_Message : UserControl
     {
-        public UC_Message(string message, string username)
+        public UC_Message(string message = null, string username = null, string serverMessage = null)
         {
             InitializeComponent();
 
-            Run_Message.Text = message;
-            Run_username.Text = username;
+            if (serverMessage == null)
+            {
+                Run_Message.Text = message;
+                Run_username.Text = username;
+
+                TextBlock_ServerMsg.Visibility = Visibility.Hidden;
+                TextBlock_msg.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                Run_ServerMessage.Text = serverMessage;
+                TextBlock_ServerMsg.Visibility = Visibility.Visible;
+                TextBlock_msg.Visibility = Visibility.Hidden;
+            }
         }
     }
 }

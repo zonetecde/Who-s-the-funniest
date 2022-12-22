@@ -7,8 +7,11 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800" Margin="0,2,0,2">
     <Grid>
-        <TextBlock FontSize="16" TextWrapping="Wrap">
+        <TextBlock x:Name="TextBlock_msg" FontSize="16" TextWrapping="Wrap">
             <Run Text="[" FontWeight="Bold"/><Run x:Name="Run_username" FontWeight="Bold"/><Run Text="]" FontWeight="Bold"/><Run Text=" : "/><Run Text="test" x:Name="Run_Message"/>
-         </TextBlock>
+        </TextBlock>
+        <TextBlock x:Name="TextBlock_ServerMsg" FontSize="16" TextWrapping="Wrap" TextAlignment="Center" FontStyle="Italic" Visibility="Hidden">
+            <Run x:Name="Run_ServerMessage" Text="test"/>
+        </TextBlock>
     </Grid>
 </UserControl>

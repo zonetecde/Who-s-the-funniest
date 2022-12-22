@@ -49,7 +49,7 @@ namespace Who_s_the_funniest__Meme_edition
         // Créé une partie
         int NbreJoueur = 8;
         Random Rdn = new Random();
-        const int MIN_PLAYER_TO_START = 1;
+        const int MIN_PLAYER_TO_START = 2;
 
         // Trouver une partie
         Party Party;
@@ -122,6 +122,8 @@ namespace Who_s_the_funniest__Meme_edition
                 {
                     if (((UC_party)party).Party.Players.Any(x => x.Id == playerIdToRemove))
                     {
+                        string usernameOfTheOneWhoLeft = ((UC_party)party).Party.Players.FirstOrDefault(x => x.Id == playerIdToRemove)!.Username;
+
                         ((UC_party)party).SomeoneLeft(((UC_party)party).Party.Players.FirstOrDefault(x => x.Id == playerIdToRemove)!);
                         if (((UC_party)party).Visibility == Visibility.Collapsed)
                             StackPanel_party.Children.Remove(((UC_party)party));
@@ -131,6 +133,8 @@ namespace Who_s_the_funniest__Meme_edition
                         {
                             if (Party.Id == ((UC_party)party).Party.Id)
                             {
+                                StackPanel_Conversation.Children.Add(new UC_Message(serverMessage: usernameOfTheOneWhoLeft + " a quitté la partie"));
+
                                 for (int i = 0; i < StackPanel_PlayerInGame.Children.Count; i++)
                                 {
                                     UC_PlayerInGame uC_PlayerInGame = (UC_PlayerInGame)StackPanel_PlayerInGame.Children[i];
@@ -303,6 +307,10 @@ namespace Who_s_the_funniest__Meme_edition
 
             image_conversation.Visibility = Visibility.Visible;
             Label_newMess.Visibility = Visibility.Visible;
+
+            if(StackPanel_Conversation.Children.Count > 0)
+                StackPanel_Conversation.Children.Add(new UC_Message(serverMessage:"\n"));
+            StackPanel_Conversation.Children.Add(new UC_Message(serverMessage: Username + " a rejoint la partie"));
         }
 
         /// <summary>
@@ -338,8 +346,6 @@ namespace Who_s_the_funniest__Meme_edition
             image_conversation.Visibility = Visibility.Collapsed;
             Border_Conversation.Visibility = Visibility.Collapsed;
             Label_newMess.Visibility = Visibility.Collapsed;
-
-
 
             UC_NoGame.Visibility = StackPanel_party.Children.Count > 2 ? Visibility.Collapsed : Visibility.Visible;
         }
@@ -428,6 +434,7 @@ namespace Who_s_the_funniest__Meme_edition
                             if (j.PartyId == Party.Id && Grid_GameJoined.Visibility == Visibility.Visible)
                             {
                                 StackPanel_PlayerInGame.Children.Add(new UC_PlayerInGame(new Player(j.Username, j.Id), false));
+                                StackPanel_Conversation.Children.Add(new UC_Message(serverMessage: j.Username + " a rejoint la partie"));
 
                                 if (Party.Players.Count >= MIN_PLAYER_TO_START)
                                     Button_StartGame.IsEnabled = true;
@@ -497,7 +504,18 @@ namespace Who_s_the_funniest__Meme_edition
 
                     });
                 }
+                else if (wtfM.MsgType == MessageType.MESSAGE)
+                {
+                    // message
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        StackPanel_Conversation.Children.Add(new UC_Message(wtfM.Content, Party.Players.First(x => x.Id == obj.Id).Username));
+                        ScrollViewer_message.ScrollToBottom();
 
+                        if (Border_Conversation.Visibility != Visibility.Visible)
+                            Label_newMess.Content = Convert.ToInt16(Label_newMess.Content) + 1;
+                    });
+                }
                 #endregion
 
                 else if (wtfM.MsgType == MessageType.MY_MEME)
@@ -532,18 +550,6 @@ namespace Who_s_the_funniest__Meme_edition
                         // Ajoute la note au mème
                         meme.Notes.Add(Convert.ToInt32(wtfM.Content.Split(',')[1]));
                     }
-                }
-                else if (wtfM.MsgType == MessageType.MESSAGE)
-                {
-                    // message
-                    Application.Current.Dispatcher.Invoke(() =>
-                    {
-                        StackPanel_Conversation.Children.Add(new UC_Message(wtfM.Content, Party.Players.First(x => x.Id == obj.Id).Username));
-                        ScrollViewer_message.ScrollToBottom();
-
-                        if (Border_Conversation.Visibility != Visibility.Visible)
-                            Label_newMess.Content = Convert.ToInt16(Label_newMess.Content) + 1;
-                    });
                 }
             }
 
@@ -1341,11 +1347,11 @@ namespace Who_s_the_funniest__Meme_edition
                 Label_SecondPlace.Content = string.Empty;
                 Label_ThirdPlace.Content = string.Empty;
                 ShowMeme(Grid_FirstPlace, OtherPeopleMème[0], 0);
-                Label_FirstPlace.Content = OtherPeopleMème[0].FromUsername;
+                Label_FirstPlace.Content = OtherPeopleMème[0].FromUsername + " " +  Math.Round(OtherPeopleMème[0].Notes.Average(),1) + "/5";
                 ShowMeme(Grid_SecondPlace, OtherPeopleMème[1], 0);
-                Label_SecondPlace.Content = OtherPeopleMème[1].FromUsername;
+                Label_SecondPlace.Content = OtherPeopleMème[1].FromUsername + " " + Math.Round(OtherPeopleMème[1].Notes.Average(), 1) + "/5";
                 ShowMeme(Grid_ThirdPlace, OtherPeopleMème[2], 0);
-                Label_ThirdPlace.Content = OtherPeopleMème[2].FromUsername;
+                Label_ThirdPlace.Content = OtherPeopleMème[2].FromUsername + " " + Math.Round(OtherPeopleMème[2].Notes.Average(), 1) + "/5";
             }
             catch 
             { 
