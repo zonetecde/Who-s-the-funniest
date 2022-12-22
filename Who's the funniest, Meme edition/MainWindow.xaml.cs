@@ -733,7 +733,7 @@ namespace Who_s_the_funniest__Meme_edition
                         video.MediaEnded += (sender, e) =>
                         {
                             // boucle infini, la deuxieme fois sans le son
-                            video.Position = new TimeSpan(0, 0, 0, 0, 1);
+                            video.Position = new TimeSpan(0, 0, 1);
                             video.Play();
 
                             // enleve le son icone
@@ -1122,6 +1122,7 @@ namespace Who_s_the_funniest__Meme_edition
                 {
                     // On attend que tout le monde envois leur mème
                     Grid_Vote.Visibility = Visibility.Visible;                    
+                    Grid_MemeMaker.Visibility = Visibility.Hidden;                    
                     ShowMeme(Grid_MemeVote, m);
                     StackPanel_note.Visibility = Visibility.Hidden;
                     Label_WaitMemeOfOtherCounter.Visibility = Visibility.Visible;
@@ -1178,7 +1179,7 @@ namespace Who_s_the_funniest__Meme_edition
                     Application.Current.Dispatcher.Invoke(() =>
                     {
                         // boucle infini
-                        video.Position = new TimeSpan(0, 0, 0, 0, 1);
+                        video.Position = new TimeSpan(0, 0, 1);
                         video.Play();
                         loopNumber++;
 
@@ -1330,6 +1331,12 @@ namespace Who_s_the_funniest__Meme_edition
             Grid_Vote.Visibility = Visibility.Hidden;
 
             // trie les mèmes en fonction des meilleurs notes
+            OtherPeopleMème.ForEach(x =>
+            {
+                if (!x.Notes.Any())
+                    x.Notes.Add(0);
+            });
+
             OtherPeopleMème = OtherPeopleMème.OrderByDescending(x => {
                 if (x.Notes.Any())
                     return x.Notes.Average();

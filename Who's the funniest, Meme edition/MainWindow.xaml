@@ -8,9 +8,23 @@
         mc:Ignorable="d"
         Title="Who's the funniest ? Meme edition" FontFamily="{StaticResource jakarta_regular}" MinHeight="768" d:Height="768" d:Width="1024" MinWidth="1024" ContentRendered="Window_ContentRendered" WindowStartupLocation="CenterScreen" WindowState="Maximized" MouseLeftButtonUp="Window_MouseLeftButtonUp" Icon="icon/icon_wtfme.png">
     <Grid>
-        <Grid x:Name="Grid_GameSearcher" Visibility="Visible">
-
-            <Grid Background="#FF85586F">
+        <MediaElement x:Name="mediaElement_background" Source="assets/background.mp4" Volume="0" Stretch="UniformToFill">
+            <MediaElement.Triggers>
+                <EventTrigger RoutedEvent="MediaElement.Loaded">
+                    <EventTrigger.Actions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <MediaTimeline Source="assets/background.mp4" Storyboard.TargetName="mediaElement_background"  
+                                        RepeatBehavior="Forever" d:DesignTimeNaturalDuration="0" />
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger.Actions>
+                </EventTrigger>
+            </MediaElement.Triggers>
+        </MediaElement>
+        
+        <Grid x:Name="Grid_GameSearcher" Visibility="Hidden">
+            <Grid Background="#7F000000">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*"/>
                     <ColumnDefinition Width="3*"/>
@@ -22,8 +36,10 @@
                     <RowDefinition Height="1*"/>
                 </Grid.RowDefinitions>
 
-                <Border Grid.Column="1" Grid.Row="1" Background="#FFF8EDE3" CornerRadius="35,35,35,35" BorderBrush="#FFD0B8A8" BorderThickness="2,2,2,2">
+                <Border Grid.Column="1" Grid.Row="1" Background="#00000000" CornerRadius="35,35,35,35" BorderBrush="Black" BorderThickness="2,2,2,2">
                     <Grid>
+                        <Image Source="/icon/icon_wtfme.png" Margin="0,90,0,0"/>
+                        <Border  BorderBrush="#FFD0B8A8" BorderThickness="2,2,2,2" CornerRadius="35,35,35,35" Background="#F2FEF8FF"  />
                         <ScrollViewer VerticalScrollBarVisibility="Auto">
                             <StackPanel x:Name="StackPanel_party">
                                 <local:UC_party_header/>
@@ -125,8 +141,8 @@
 
         </Grid>
 
-        <Grid x:Name="Grid_Game" Visibility="Hidden">
-            <Grid x:Name="Grid_MemeMaker" Background="#FF2B3A55">
+        <Grid x:Name="Grid_Game" Visibility="Visible">
+            <Grid x:Name="Grid_MemeMaker" Visibility="Hidden">
 
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="16*"/>
@@ -140,6 +156,8 @@
                     <RowDefinition Height="12*"/>
                     <RowDefinition Height="1*"/>
                 </Grid.RowDefinitions>
+
+
 
                 <Viewbox Grid.Row="0" Grid.Column="1">
                     <Label x:Name="Label_titreMeme" Content="Titre du meme" Foreground="White" VerticalAlignment="Bottom" Padding="5,10,5,0" Margin="0,0,0,2.5"/>
@@ -218,13 +236,13 @@
 
             <Grid x:Name="Grid_Vote" Visibility="Hidden">
 
-                <Grid.Background>
+                <!--<Grid.Background>
                     <RadialGradientBrush>
                         <GradientStop Color="#FF756767" Offset="0.076"/>
                         <GradientStop Color="#FFA98989" Offset="1"/>
                         <GradientStop Color="#FF9C8080" Offset="0"/>
                     </RadialGradientBrush>
-                </Grid.Background>
+                </Grid.Background>-->
 
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="0.2*"/>
@@ -237,7 +255,7 @@
                     <RowDefinition Height="0.3*"/>
                 </Grid.RowDefinitions>
 
-                <ProgressBar x:Name="ProgressBar_VoteTimer"  Grid.RowSpan="3" Grid.ColumnSpan="3" Background="#00000000" Value="0" Foreground="#19000000" Orientation="Vertical" RenderTransformOrigin="0.5,0.5">
+                <ProgressBar x:Name="ProgressBar_VoteTimer"  Grid.RowSpan="3" Grid.ColumnSpan="3" Background="#00000000" Value="0" Foreground="#19000000" Orientation="Vertical" RenderTransformOrigin="0.5,0.5" BorderBrush="#00BCBCBC">
                     <ProgressBar.RenderTransform>
                         <TransformGroup>
                             <ScaleTransform/>
@@ -286,13 +304,8 @@
                 </StackPanel>
             </Grid>
 
-            <Grid x:Name="Grid_Leaderboard">
-                <Grid.Background>
-                    <RadialGradientBrush>
-                        <GradientStop Color="#FF576B9C" Offset="0.191"/>
-                        <GradientStop Color="#FF91A3CE" Offset="1"/>
-                    </RadialGradientBrush>
-                </Grid.Background>
+            <Grid x:Name="Grid_Leaderboard" Visibility="Hidden">
+                
 
                 <Viewbox>
                     <Canvas Width="1024" Height="768" HorizontalAlignment="Center" VerticalAlignment="Bottom">
@@ -324,10 +337,10 @@
 
                 <Image Source="/assets/close.png" VerticalAlignment="Top" HorizontalAlignment="Right" Width="35" Margin="0,7,3,0" MouseDown="Image_Close_MouseDown"/>
 
-                <ScrollViewer x:Name="ScrollViewer_message" Margin="10,55,0,50">
+                <ScrollViewer x:Name="ScrollViewer_message" Margin="10,55,0,55">
                     <Grid>
                         <StackPanel x:Name="StackPanel_Conversation">
-        
+
                         </StackPanel>
                     </Grid>
                 </ScrollViewer>
