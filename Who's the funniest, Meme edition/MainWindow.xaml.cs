@@ -161,23 +161,32 @@ namespace Who_s_the_funniest__Meme_edition
                                 else
                                     Button_StartGame.IsEnabled = false;
 
-                                // Si on est en game, en train de faire les mèmes et que la personne se déco on vérifie que peut être il y a tous le monde qui a envoyé leur mème
-                                if(Grid_MemeMaker.Visibility == Visibility.Visible || (StackPanel_note.Visibility == Visibility.Hidden && Grid_Vote.Visibility == Visibility.Visible))
-                                {
-                                    // Si on a reçu tous les mèmes ont peut commencer le vote
-                                    if (OtherPeopleMème.Count == Party.Players.Count)
-                                    {
-                                        Application.Current.Dispatcher.Invoke(() =>
-                                        {
-                                            StartVoting();
-                                        });
-                                    }
-                                }
+                        
                             }
                         }
                     }
                 }
             }
+
+            if(Party != null)
+                if (Party.Players.Exists(x => x.Id == playerIdToRemove))
+                {
+                    // Si on est en game, en train de faire les mèmes et que la personne se déco on vérifie que peut être il y a tous le monde qui a envoyé leur mème
+                    if (Grid_MemeMaker.Visibility == Visibility.Visible || (Label_WaitMemeOfOtherCounter.Visibility == Visibility.Visible && Grid_Vote.Visibility == Visibility.Visible))
+                    {
+                        Party.Players.RemoveAll(x => x.Id == playerIdToRemove);
+                        OtherPeopleMème.RemoveAll(x => x.FromId == playerIdToRemove);
+
+                        // Si on a reçu tous les mèmes ont peut commencer le vote
+                        if (OtherPeopleMème.Count == Party.Players.Count)
+                        {
+                            Application.Current.Dispatcher.Invoke(() =>
+                            {
+                                StartVoting();
+                            });
+                        }
+                    }
+                }
         }
 
         /// <summary>
@@ -727,13 +736,14 @@ namespace Who_s_the_funniest__Meme_edition
                         Label_titreMeme.Content = randomLine.Split('|')[0].Replace(" ", "  ");
 
                         MediaElement video = new MediaElement();
+                        video.Volume = 0.25;
                         video.LoadedBehavior = MediaState.Manual;
                         bool firstLoop = true;
 
                         video.MediaEnded += (sender, e) =>
                         {
                             // boucle infini, la deuxieme fois sans le son
-                            video.Position = new TimeSpan(0, 0, 1);
+                            video.Position = new TimeSpan(0, 0, 0,0,250);
                             video.Play();
 
                             // enleve le son icone
@@ -1140,7 +1150,7 @@ namespace Who_s_the_funniest__Meme_edition
         /// </summary>
         /// <param name="border_MyMeme"></param>
         /// <param name="m"></param>
-        private void ShowMeme(Panel panel, Mème m, double volume = 0.3)
+        private void ShowMeme(Panel panel, Mème m, double volume = 0.25)
         {
             panel.Children.Clear();
 
@@ -1179,15 +1189,9 @@ namespace Who_s_the_funniest__Meme_edition
                     Application.Current.Dispatcher.Invoke(() =>
                     {
                         // boucle infini
-                        video.Position = new TimeSpan(0, 0, 1);
+                        video.Position = new TimeSpan(0, 0, 0, 0, 250);
                         video.Play();
                         loopNumber++;
-
-                        // plus de son après 3 répétitions
-                        if (loopNumber >= 3)
-                        {
-                            video.Volume = 0;
-                        }
                     });
 
                 };
