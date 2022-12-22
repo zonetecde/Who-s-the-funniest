@@ -11,7 +11,7 @@
     <PackageIcon>icon_wtfme.png</PackageIcon>
     <RepositoryUrl>https://github.com/zonetecde/Who-s-the-funniest</RepositoryUrl>
     <PackageTags>jeu;game;meme;fun;multiplayer</PackageTags>
-    <FileVersion>1.0.4</FileVersion>
+    <FileVersion>1.0.9</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
