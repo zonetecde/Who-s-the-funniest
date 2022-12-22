@@ -141,8 +141,8 @@
 
         </Grid>
 
-        <Grid x:Name="Grid_Game" Visibility="Hidden">
-            <Grid x:Name="Grid_MemeMaker" Visibility="Hidden">
+        <Grid x:Name="Grid_Game" Visibility="Visible">
+            <Grid x:Name="Grid_MemeMaker" Visibility="Visible">
 
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="16*"/>
@@ -230,7 +230,7 @@
                 <Button Grid.Column="1" Grid.Row="2" Width="400" Height="40" VerticalAlignment="Top" Margin="0,5,0,0" Background="#FFDDFFCF" BorderBrush="Black" Content="Valider son mème" FontSize="20" Click="Button_ValideMeme_Click"/>
                 <Image x:Name="image" Grid.Column="4" Grid.Row="3"  Source="/assets/stopwatch.png" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,5,5"/>
                 <Viewbox  Grid.Column="4" Grid.Row="3" Width="{Binding ActualWidth, ElementName=image, Mode=OneWay}" Height="{Binding ActualHeight, ElementName=image, Mode=OneWay}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,5,5" >
-                    <Label x:Name="label_timer" Content="90" Padding="7,7,7,5" FontFamily="Consolas" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                    <Label Width="30" Height="30" x:Name="label_timer" Content="90" Padding="7,7,7,5" FontFamily="Consolas" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
                 </Viewbox>
             </Grid>
 

@@ -1095,7 +1095,7 @@ namespace Who_s_the_funniest__Meme_edition
             }
 
             // Il faut au minimum une zone de texte
-            if (ZoneDeTexte.Any() || sender == null) // ||sender == null : le mème a été forcé à être envoyé (countdown à 0)
+            if (ZoneDeTexte.Any() || label_timer.Content.ToString() == "0") // ||sender == null : le mème a été forcé à être envoyé (countdown à 0)
             {
                 Mème m = new Mème(nom_et_url.Split('|')[0], nom_et_url.Split('|')[1], ZoneDeTexte, ZoneckClient.MyId, Username);
                 OtherPeopleMème.Add(m);
