@@ -23,7 +23,7 @@
             </MediaElement.Triggers>
         </MediaElement>
         
-        <Grid x:Name="Grid_GameSearcher" Visibility="Hidden">
+        <Grid x:Name="Grid_GameSearcher" Visibility="Visible">
             <Grid Background="#7F000000">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*"/>
@@ -141,7 +141,7 @@
 
         </Grid>
 
-        <Grid x:Name="Grid_Game" Visibility="Visible">
+        <Grid x:Name="Grid_Game" Visibility="Hidden">
             <Grid x:Name="Grid_MemeMaker" Visibility="Hidden">
 
                 <Grid.ColumnDefinitions>
