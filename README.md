@@ -12,6 +12,13 @@ Amusez-vous à créer les memes les plus drôles et à noter ceux de vos amis !
 </p>
 
 <p align="center">
+<h1>Vidéo</h1>
+
+[![Who's the funniest ?](https://user-images.githubusercontent.com/56195432/209238878-3801cad6-aceb-4e8c-88c5-a941304f3982.png)](https://youtu.be/5R0sNgi7rMQ "Who's the funniest ?")
+
+<p align="center">
+
+<h1>Image</h1>
 
 ![image](https://user-images.githubusercontent.com/56195432/209103991-bcf0e021-13eb-461e-9018-649f0db4ae61.png)
 </p>
