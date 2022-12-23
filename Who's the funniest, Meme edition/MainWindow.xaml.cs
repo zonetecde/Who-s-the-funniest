@@ -107,6 +107,8 @@ namespace Who_s_the_funniest__Meme_edition
             catch
             {
                 MessageBox.Show("Aucun serveur trouvé.\nVeuillez le télécharger sur mon GitHub : \ngithub.com/zonetecde/zoneck-server/releases");
+                Who_s_the_funniest.Properties.Settings.Default.Username = string.Empty;
+                Who_s_the_funniest.Properties.Settings.Default.Save();
                 this.Close();
             }
         }

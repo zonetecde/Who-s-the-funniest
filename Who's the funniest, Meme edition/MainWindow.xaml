@@ -189,7 +189,7 @@
                         <Viewbox VerticalAlignment="Top" HorizontalAlignment="Center">
                             <Label Content="Customisation" Foreground="White" FontSize="30"/>
                         </Viewbox>
-                        <Button x:Name="Button_ChangeMeme" VerticalAlignment="Top" Height="50" FontSize="20" Background="#FFFFFCDF" BorderBrush="Black" Click="Button_ChangeMeme_Click" Margin="20,90,20,0">
+                        <Button x:Name="Button_ChangeMeme" VerticalAlignment="Top" Height="50" FontSize="17" Background="#FFFFFCDF" BorderBrush="Black" Click="Button_ChangeMeme_Click" Margin="20,90,20,0">
                             <Viewbox Margin="10,0,10,0">
                                 <Label Content="Changer de mème (3)" Padding="0,0,0,0" />
                             </Viewbox>
