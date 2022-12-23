@@ -10,14 +10,17 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="6.5*"/>
             <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="2*"/>
             <ColumnDefinition Width="3*"/>
         </Grid.ColumnDefinitions>
         <Label Content="{Binding Nom}" Grid.Column="0" VerticalContentAlignment="Center" FontSize="24" Padding="40,5,5,5"/>
-        <Border BorderThickness="0,0,2,2" BorderBrush="Black"/>
+        <Border BorderThickness="2,0,2,2" BorderBrush="Black"/>
         <Border BorderThickness="0,0,2,2" BorderBrush="Black" Grid.Column="1"/>
-        <Border BorderThickness="0,0,0,2" BorderBrush="Black" Grid.Column="2"/>
+        <Border BorderThickness="0,0,2,2" BorderBrush="Black" Grid.Column="2"/>
+        <Border BorderThickness="0,0,2,2" BorderBrush="Black" Grid.Column="3"/>
         <Label Content="{Binding Langue}" Grid.Column="1" VerticalContentAlignment="Center" FontSize="24" HorizontalContentAlignment="Center"/>
-        <Label Grid.Column="2"  FontSize="24" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+        <Label Content="{Binding NbreRound}" Grid.Column="2" VerticalContentAlignment="Center" FontSize="24" HorizontalContentAlignment="Center"/>
+        <Label Grid.Column="3"  FontSize="24" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
             <TextBlock ><Run x:Name="Run_NbreJoueurConnecté" /><Run Text="/"/><Run Text="{Binding NbreJoueurMax}"/></TextBlock>
         </Label>
     </Grid>

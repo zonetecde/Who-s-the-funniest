@@ -16,5 +16,6 @@ namespace Who_s_the_funniest.classe
 
         public string Username { get; }
         public string Id { get; }
+        public double Moyenne { get; set; }
     }
 }

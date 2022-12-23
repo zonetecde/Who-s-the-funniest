@@ -3,6 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
+        xmlns:fa="http://schemas.fontawesome.io/icons/"
+
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Who_s_the_funniest__Meme_edition.uc"
         mc:Ignorable="d"
@@ -15,14 +17,14 @@
                         <BeginStoryboard>
                             <Storyboard>
                                 <MediaTimeline Source="assets/background.mp4" Storyboard.TargetName="mediaElement_background"  
-                                        RepeatBehavior="Forever" d:DesignTimeNaturalDuration="0" />
+                                        RepeatBehavior="Forever" />
                             </Storyboard>
                         </BeginStoryboard>
                     </EventTrigger.Actions>
                 </EventTrigger>
             </MediaElement.Triggers>
         </MediaElement>
-        
+
         <Grid x:Name="Grid_GameSearcher" Visibility="Visible">
             <Grid Background="#7F000000">
                 <Grid.ColumnDefinitions>
@@ -52,47 +54,56 @@
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="1*"/>
-                                    <ColumnDefinition Width="4*"/>
+                                    <ColumnDefinition Width="5*"/>
                                     <ColumnDefinition Width="1*"/>
                                 </Grid.ColumnDefinitions>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="1*"/>
-                                    <RowDefinition Height="4*"/>
+                                    <RowDefinition Height="6.5*"/>
                                     <RowDefinition Height="1*"/>
                                 </Grid.RowDefinitions>
                                 <Border Grid.Column="1" Background="#FFF8EDE3" Grid.Row="1" CornerRadius="25,25,25,25"  BorderBrush="#FFD0B8A8" BorderThickness="2,2,2,2">
                                     <Grid>
                                         <Grid.RowDefinitions>
-                                            <RowDefinition Height="1*"/>
-                                            <RowDefinition Height="1*"/>
-                                            <RowDefinition Height="0.2*"/>
-                                            <RowDefinition Height="1*"/>
-                                            <RowDefinition Height="1*"/>
-                                            <RowDefinition Height="1*"/>
+                                            <RowDefinition Height="67*"/>
+                                            <RowDefinition Height="67*"/>
+                                            <RowDefinition Height="28*"/>
+                                            <RowDefinition Height="79*"/>
+                                            <RowDefinition Height="56*"/>
+                                            <RowDefinition Height="20*"/>
+                                            <RowDefinition Height="32*"/>
                                         </Grid.RowDefinitions>
 
-                                        <Label VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,20,0,0" Content="Créer une partie" FontSize="30"/>
-                                        <Label Content="Nom : " Grid.Row="1" FontSize="20" VerticalAlignment="Bottom" Margin="15,0,0,55"/>
-                                        <Label Content="Langue : " Grid.Row="1" FontSize="20" VerticalAlignment="Bottom" Margin="15,0,20.1,55" HorizontalAlignment="Right"/>
-                                        <TextBox x:Name="TextBox_GameName" Grid.Row="1" Background="#7FFFFFFF" VerticalAlignment="Bottom" Margin="30,0,110,10" Height="40" BorderBrush="Black" SelectionBrush="#FF323721" VerticalContentAlignment="Center" Padding="5,0,0,0" FontSize="20"/>
-                                        <ComboBox x:Name="ComboBox_Lang" Grid.Row="1" FontSize="20" VerticalAlignment="Bottom" Margin="15,0,20.1,10" HorizontalAlignment="Right" Width="85" Height="40" BorderBrush="Black" Background="#7FFFFFFF" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+                                        <Label VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,20,0,0" Content="Créer une partie" FontSize="30" Height="47" Width="238"/>
+                                        <Label Content="Nom : " FontSize="20" VerticalAlignment="Bottom" Margin="15,0,0,65" Height="22" Grid.RowSpan="2" Padding="15,0,0,0"/>
+                                        <Label Content="Langue : " FontSize="20" VerticalAlignment="Bottom" Margin="0,0,20,55" HorizontalAlignment="Right" Height="30" Grid.RowSpan="2" Width="93" Padding="5,0,0,0"/>
+                                        <TextBox x:Name="TextBox_GameName" Grid.Row="1" Background="#7FFFFFFF" VerticalAlignment="Bottom" Margin="30,0,110,20" Height="40" BorderBrush="Black" SelectionBrush="#FF323721" VerticalContentAlignment="Center" Padding="5,0,0,0" FontSize="20"/>
+                                        <ComboBox x:Name="ComboBox_Lang" Grid.Row="1" FontSize="20" VerticalAlignment="Bottom" Margin="0,0,20,20" HorizontalAlignment="Right" Width="85" Height="40" BorderBrush="Black" Background="#7FFFFFFF" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
                                             <ComboBoxItem Content="FRA" IsSelected="True"/>
                                             <ComboBoxItem Content="EN"/>
                                             <ComboBoxItem Content="AR"/>
                                             <ComboBoxItem Content="ES"/>
                                         </ComboBox>
-                                        <Label Content="Nombre de joueur : " Grid.Row="3" FontSize="20" VerticalAlignment="Bottom" Margin="15,0,0,55"/>
-                                        <StackPanel x:Name="StackPanel_nbrePlayer" Orientation="Horizontal" Grid.Row="3" VerticalAlignment="Bottom" Margin="30,0,30,10" Height="40" HorizontalAlignment="Center">
+                                        <StackPanel x:Name="StackPanel_nbrePlayer" Orientation="Horizontal" Grid.Row="4" VerticalAlignment="Center" Height="40" HorizontalAlignment="Center" Width="280" Margin="0,0,0,20">
                                             <Label Style="{DynamicResource LabelStyle_NbrePlayer}" Width="40" Content="4" FontSize="30" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0,0,0,0" Margin="0,0,20,0" MouseDown="Label_NbrePlayer_X_MouseDown" BorderThickness="2,2,2,2" BorderBrush="Black"/>
                                             <Label Style="{DynamicResource LabelStyle_NbrePlayer}" Width="40" Content="6" FontSize="30" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0,0,0,0" Margin="0,0,20,0"  MouseDown="Label_NbrePlayer_X_MouseDown" BorderThickness="2,2,2,2" BorderBrush="Black"/>
                                             <Label Style="{DynamicResource LabelStyle_NbrePlayer}" Width="40" Content="8" FontSize="30" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0,0,0,0" Margin="0,0,20,0"  MouseDown="Label_NbrePlayer_X_MouseDown" BorderThickness="2,2,2,2" BorderBrush="Red"/>
                                             <Label Style="{DynamicResource LabelStyle_NbrePlayer}" Width="40" Content="12" FontSize="30" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0,0,0,0" Margin="0,0,20,0"  MouseDown="Label_NbrePlayer_X_MouseDown" BorderThickness="2,2,2,2" BorderBrush="Black"/>
                                             <Label Style="{DynamicResource LabelStyle_NbrePlayer}" Width="40" Content="*" FontSize="30" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0,0,0,0"  MouseDown="Label_NbrePlayer_X_MouseDown" BorderThickness="2,2,2,2" BorderBrush="Black"/>
                                         </StackPanel>
+                                        <Label Content="Nombre de joueur : " Grid.Row="3" Grid.RowSpan="2" FontSize="20" VerticalAlignment="Bottom" Margin="15,0,0,70" Height="32" Padding="0,5,0,0"/>
+                                        <Label Content="Nombre de tour(s) : " Grid.Row="2" FontSize="20" VerticalAlignment="Bottom" Margin="15,0,0,6" Height="32" Padding="0,5,0,0"/>
+                                        <StackPanel x:Name="StackPanel_nbreTour" Orientation="Horizontal" Grid.Row="3" VerticalAlignment="Center" Height="40" HorizontalAlignment="Center" Width="280" Margin="0,0,0,40">
+                                            <Label Style="{DynamicResource LabelStyle_NbrePlayer}" Width="40" Content="1" FontSize="30" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0,0,0,0" Margin="0,0,20,0" MouseDown="Label_NbreTour_X_MouseDown" BorderThickness="2,2,2,2" BorderBrush="Black" />
+                                            <Label Style="{DynamicResource LabelStyle_NbrePlayer}" Width="40" Content="3" FontSize="30" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0,0,0,0" Margin="0,0,20,0"  MouseDown="Label_NbreTour_X_MouseDown" BorderThickness="2,2,2,2" BorderBrush="Red" />
+                                            <Label Style="{DynamicResource LabelStyle_NbrePlayer}" Width="40" Content="5" FontSize="30" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0,0,0,0" Margin="0,0,20,0"  MouseDown="Label_NbreTour_X_MouseDown" BorderThickness="2,2,2,2" BorderBrush="Black"/>
+                                            <Label Style="{DynamicResource LabelStyle_NbrePlayer}" Width="40" Content="7" FontSize="30" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0,0,0,0" Margin="0,0,20,0"  MouseDown="Label_NbreTour_X_MouseDown" BorderThickness="2,2,2,2" BorderBrush="Black" />
+                                            <Label Style="{DynamicResource LabelStyle_NbrePlayer}" Width="40" Content="10" FontSize="30" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Padding="0,0,0,0"  MouseDown="Label_NbreTour_X_MouseDown" BorderThickness="2,2,2,2" BorderBrush="Black" />
+                                        </StackPanel>
+                                        
+                                        <Button Content="Créer" Grid.Row="5" Grid.RowSpan="2"  HorizontalAlignment="Center" VerticalAlignment="Top" Width="200" Height="40" Background="#FFFBE4E4" BorderBrush="Black" FontSize="20" Click="Button_CreateGame_Click" Margin="0,1,0,0"/>
 
-                                        <Button Content="Créer" Grid.Row="4" Margin="0,10,0,-20" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="200" Height="40" Background="#FFFBE4E4" BorderBrush="Black" FontSize="20" Click="Button_CreateGame_Click"/>
-
-                                        <Image Width="30" HorizontalAlignment="Right" Source="assets/close.png" VerticalAlignment="Top" Margin="0,10,10,0" MouseDown="Image_Close_CreateNewGame_MouseDown"/>
+                                        <Image Width="30" HorizontalAlignment="Right" Source="assets/close.png" VerticalAlignment="Top" Margin="0,10,10,0" MouseDown="Image_Close_CreateNewGame_MouseDown" Height="30"/>
                                     </Grid>
                                 </Border>
                             </Grid>
@@ -141,8 +152,8 @@
 
         </Grid>
 
-        <Grid x:Name="Grid_Game" Visibility="Visible">
-            <Grid x:Name="Grid_MemeMaker" Visibility="Visible">
+        <Grid x:Name="Grid_Game" Visibility="Hidden">
+            <Grid x:Name="Grid_MemeMaker" Visibility="Hidden">
 
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="16*"/>
@@ -180,7 +191,7 @@
                         </Viewbox>
                         <Button x:Name="Button_ChangeMeme" VerticalAlignment="Top" Height="50" FontSize="20" Background="#FFFFFCDF" BorderBrush="Black" Click="Button_ChangeMeme_Click" Margin="20,90,20,0">
                             <Viewbox Margin="10,0,10,0">
-                                <Label Content="Changer de mème (3)" />
+                                <Label Content="Changer de mème (3)" Padding="0,0,0,0" />
                             </Viewbox>
                         </Button>
 
@@ -277,7 +288,7 @@
                 <TextBlock x:Name="Label_WaitMemeOfOtherCounter" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="30" TextAlignment="Center" Margin="0,20,0,0" Visibility="Collapsed">
                     <Run Text="En attente des mèmes des autres joueurs..."/>
                     <LineBreak/>
-                    <Run x:Name="Run_MemeCounter" Text="1/12" FontSize="50"/>
+                    <Run x:Name="Run_MemeRemainingBeforeStartingVote" Text="1/12" FontSize="50"/>
                 </TextBlock>
                 <StackPanel x:Name="StackPanel_note" Grid.Row="2" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,15,0,0" Width="550" Height="110">
                     <Border  Background="#FFF54B4B" BorderBrush="Black" CornerRadius="20,0,0,20" BorderThickness="2,2,0,2" Tag="1" MouseEnter="Border_Note_MouseEnter" MouseLeave="Border_Note_MouseLeave" MouseDown="Border_Note_MouseDown">
@@ -304,8 +315,13 @@
                 </StackPanel>
             </Grid>
 
+            <Grid x:Name="Grid_Wait" Visibility="Hidden">
+                <fa:ImageAwesome Icon="Spinner" Spin="True" Height="110" Width="110" Foreground="White" Margin="0,0,0,50" />
+                <Label Content="Préparation du classement..." Foreground="White" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,190,0,50" FontSize="30"/>
+            </Grid>
+
             <Grid x:Name="Grid_Leaderboard" Visibility="Hidden">
-                
+
 
                 <Viewbox>
                     <Canvas Width="1024" Height="768" HorizontalAlignment="Center" VerticalAlignment="Bottom">
@@ -319,9 +335,28 @@
                     </Canvas>
                 </Viewbox>
 
-                <Button VerticalContentAlignment="Center" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,50,0,0" Width="300" Height="50" Content="Retourner au menu principal" FontSize="20" Background="#7FFFFFFF" BorderBrush="Black" Click="Button_GameFinish_Click"/>
-
+                <TextBlock x:Name="Label_Round" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,35,0,0" TextAlignment="Center" Foreground="White" FontWeight="Bold" FontSize="30" LineHeight="48">
+                    <Run Text="Résultat du tour "/><Run x:Name="Run_Round" Text="1"/><Run Text="/"/><Run x:Name="Run_roundNumber" Text="3"/>
+                    <LineBreak/>
+                    <Run x:Name="Run_IndicationLeaderBoardRound" Text="" FontWeight="Normal" FontSize="25"/> <Run x:Name="Run_CompteurBeforeStartingRound" Text="10" FontSize="25" FontWeight="Normal"/><Run Text="  secondes" FontWeight="Normal" FontSize="25"/>
+                </TextBlock>
                 <StackPanel x:Name="StackPanel_LeaderBoard"/>
+            </Grid>
+
+            <Grid x:Name="Grid_ClassementFinaux" Visibility="Hidden">
+
+                <Border Margin="100,50,100,50" Background="#7F000000" BorderBrush="Black" BorderThickness="2,2,2,2" CornerRadius="35,35,35,35">
+                    <Grid>
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto">
+
+                            <StackPanel x:Name="StackPanel_AllPlayerMeme" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0"/>
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
+
+                <Button x:Name="Button_BackToMainMenu" VerticalContentAlignment="Center" VerticalAlignment="Top" 
+                        HorizontalAlignment="Center" Margin="0,10,0,0" Width="300" Height="40" Content="Retourner au menu principal" FontSize="20" Background="#7F000000"  BorderBrush="Black" Click="Button_GameFinish_Click" Visibility="Visible" Foreground="White"/>
+
             </Grid>
         </Grid>
 

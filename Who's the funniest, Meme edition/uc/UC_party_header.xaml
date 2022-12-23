@@ -11,14 +11,17 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="6.5*"/>
                 <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="2*"/>
                 <ColumnDefinition Width="3*"/>
             </Grid.ColumnDefinitions>
             <Label Content="Nom" Grid.Column="0" VerticalContentAlignment="Center" FontSize="26" Padding="40,5,5,5"/>
             <Border BorderThickness="0,0,2,2" BorderBrush="Black"/>
             <Border BorderThickness="0,0,2,2" BorderBrush="Black" Grid.Column="1"/>
-            <Border BorderThickness="0,0,0,2" BorderBrush="Black" Grid.Column="2"/>
+            <Border BorderThickness="0,0,2,2" BorderBrush="Black" Grid.Column="2"/>
+            <Border BorderThickness="0,0,0,2" BorderBrush="Black" Grid.Column="3"/>
             <Label Content="Langue" Grid.Column="1" VerticalContentAlignment="Center" FontSize="26" HorizontalContentAlignment="Center"/>
-            <Label Grid.Column="2"  FontSize="26" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+            <Label Content="Tour(s)" Grid.Column="2" VerticalContentAlignment="Center" FontSize="26" HorizontalContentAlignment="Center"/>
+            <Label Grid.Column="3"  FontSize="26" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
                 <TextBlock TextAlignment="Center">Joueur<LineBreak/>connecté(s)</TextBlock>
             </Label>
         </Grid>

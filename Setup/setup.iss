@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Who's the funniest"
-#define MyAppVersion "1.0.9"
+#define MyAppVersion "1.1.0"
 #define MyAppPublisher "zonetecde"
 #define MyAppURL "https://www.github.com/zonetecde"
 #define MyAppExeName "Who_s the funniest.exe"
